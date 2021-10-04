@@ -16,6 +16,7 @@ type authorHandler struct {
 	authorUsecase domain.AuthorUsecase
 }
 
+// NewAuthorHandler will initialize the authors/ resources endpoint
 func NewAuthorHandler(e *echo.Group, authorUsecase domain.AuthorUsecase) {
 	handler := &authorHandler{
 		authorUsecase: authorUsecase,
@@ -28,6 +29,7 @@ func NewAuthorHandler(e *echo.Group, authorUsecase domain.AuthorUsecase) {
 	e.DELETE("/authors/:id", handler.Delete)
 }
 
+// Create will store the author by given request body
 func (h *authorHandler) Create(c echo.Context) error {
 	ctx := c.Request().Context()
 	var req request.CreateAuthorReq
@@ -51,6 +53,7 @@ func (h *authorHandler) Create(c echo.Context) error {
 
 }
 
+// GetByID will get author by given id
 func (h *authorHandler) GetByID(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
@@ -70,6 +73,7 @@ func (h *authorHandler) GetByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"data": author})
 }
 
+// Fetch will fetch the author
 func (h *authorHandler) Fetch(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -81,6 +85,7 @@ func (h *authorHandler) Fetch(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"data": authors})
 }
 
+// Update will get author by given request body
 func (h *authorHandler) Update(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
@@ -111,6 +116,7 @@ func (h *authorHandler) Update(c echo.Context) error {
 	})
 }
 
+// Delete will delete author by given param
 func (h *authorHandler) Delete(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))

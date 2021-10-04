@@ -2,6 +2,7 @@ package request
 
 import validation "github.com/go-ozzo/ozzo-validation"
 
+// CreateAuthorReq represent create author request body
 type CreateAuthorReq struct {
 	Name string `json:"name"`
 }
@@ -13,6 +14,7 @@ func (request CreateAuthorReq) Validate() error {
 	)
 }
 
+// UpdateAuthorReq represent update author request body
 type UpdateAuthorReq struct {
 	Name string `json:"name"`
 }

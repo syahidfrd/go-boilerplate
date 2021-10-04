@@ -12,6 +12,7 @@ type authorRepository struct {
 	db *sql.DB
 }
 
+// NewAuthorRepository will create new an authorRepository object representation of domain.AuthorRepository interface
 func NewAuthorRepository(db *sql.DB) domain.AuthorRepository {
 	return &authorRepository{
 		db: db,

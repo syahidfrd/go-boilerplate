@@ -7,10 +7,12 @@ import (
 	"github.com/labstack/echo"
 )
 
+// Error is the response that represents an error
 type Error struct {
 	Errors map[string]interface{} `json:"errors"`
 }
 
+// NewError creates a new error response
 func NewError(err error) Error {
 	e := Error{}
 	e.Errors = make(map[string]interface{})
@@ -30,6 +32,7 @@ type invalidField struct {
 	Error string `json:"error"`
 }
 
+// NewValidationError creates a new error response representing a data validation error (HTTP 400)
 func NewValidationError(errs validation.Errors) Error {
 	e := Error{}
 	e.Errors = make(map[string]interface{})
@@ -53,6 +56,7 @@ func NewValidationError(errs validation.Errors) Error {
 	return e
 }
 
+// NewAccessForbiddenError creates a new error response representing an authorization failure (HTTP 403)
 func NewAccessForbiddenError() Error {
 	e := Error{}
 	e.Errors = make(map[string]interface{})
@@ -60,6 +64,7 @@ func NewAccessForbiddenError() Error {
 	return e
 }
 
+// NewNotFoundError creates a new error response representing a resource-not-found error (HTTP 404)
 func NewNotFoundError() Error {
 	e := Error{}
 	e.Errors = make(map[string]interface{})

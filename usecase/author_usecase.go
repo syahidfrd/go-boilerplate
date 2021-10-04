@@ -12,6 +12,7 @@ type authorUsecase struct {
 	authorRepository domain.AuthorRepository
 }
 
+// NewAuthorUsecase will create new an authorUsecase object representation of domain.AuthorUsecase interface
 func NewAuthorUsecase(authorRepository domain.AuthorRepository) domain.AuthorUsecase {
 	return &authorUsecase{
 		authorRepository: authorRepository,

@@ -14,6 +14,8 @@ const (
 	CorrelationContextKey ContextKey = "cid"
 )
 
+// GenerateCorrelationID will search for a correlation header and set a request-level
+// correlation id into the context. If no header is found, a new UUID will be generated.
 func GenerateCorrelationID() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {

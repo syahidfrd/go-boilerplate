@@ -8,6 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// NewDatabase will create new database instance
 func NewDatabase(databaseURL string) *sql.DB {
 	parseDBUrl, _ := url.Parse(databaseURL)
 	db, err := sql.Open(parseDBUrl.Scheme, databaseURL)
