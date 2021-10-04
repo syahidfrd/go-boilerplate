@@ -24,7 +24,7 @@ type AuthorUsecase interface {
 	Delete(ctx context.Context, id int64) error
 }
 
-// AuthorUsecase represent the author's repository contract
+// AuthorRepository represent the author's repository contract
 type AuthorRepository interface {
 	Create(ctx context.Context, author *Author) error
 	GetByID(ctx context.Context, id int64) (Author, error)
