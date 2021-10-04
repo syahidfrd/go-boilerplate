@@ -58,7 +58,7 @@ func (h *authorHandler) GetByID(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
 	}
 
-	author, err := h.authorUsecase.GetByID(ctx, uint64(id))
+	author, err := h.authorUsecase.GetByID(ctx, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
@@ -98,7 +98,7 @@ func (h *authorHandler) Update(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, utils.NewValidationError(errValidations))
 	}
 
-	if err := h.authorUsecase.Update(ctx, uint64(id), &req); err != nil {
+	if err := h.authorUsecase.Update(ctx, int64(id), &req); err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
 		}
@@ -118,7 +118,7 @@ func (h *authorHandler) Delete(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
 	}
 
-	if err := h.authorUsecase.Delete(ctx, uint64(id)); err != nil {
+	if err := h.authorUsecase.Delete(ctx, int64(id)); err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
 		}
