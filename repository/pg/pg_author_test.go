@@ -1,4 +1,4 @@
-package repository
+package pg_test
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/syahidfrd/go-boilerplate/domain"
+	"github.com/syahidfrd/go-boilerplate/repository/pg"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
@@ -28,7 +29,7 @@ func TestCreate(t *testing.T) {
 		WithArgs(author.Name, author.CreatedAt, author.UpdatedAt).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	authorRepository := NewAuthorRepository(db)
+	authorRepository := pg.NewPostgresqlAuthorRepository(db)
 	err = authorRepository.Create(context.TODO(), author)
 	assert.NoError(t, err)
 }
@@ -54,7 +55,7 @@ func TestGetByID(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	authorRepository := NewAuthorRepository(db)
+	authorRepository := pg.NewPostgresqlAuthorRepository(db)
 	author, err := authorRepository.GetByID(context.TODO(), 1)
 	assert.NoError(t, err)
 	assert.NotNil(t, author)
@@ -79,7 +80,7 @@ func TestFetch(t *testing.T) {
 	query := "SELECT id, name, created_at, updated_at FROM authors"
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	authorRepository := NewAuthorRepository(db)
+	authorRepository := pg.NewPostgresqlAuthorRepository(db)
 	authors, err := authorRepository.Fetch(context.TODO())
 	assert.NoError(t, err)
 	assert.Len(t, authors, 2)
@@ -103,7 +104,7 @@ func TestUpdate(t *testing.T) {
 		WithArgs(author.Name, author.UpdatedAt, author.ID).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	authorRepository := NewAuthorRepository(db)
+	authorRepository := pg.NewPostgresqlAuthorRepository(db)
 	err = authorRepository.Update(context.TODO(), author)
 	assert.NoError(t, err)
 }
@@ -119,7 +120,7 @@ func TestDelete(t *testing.T) {
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	authorRepository := NewAuthorRepository(db)
+	authorRepository := pg.NewPostgresqlAuthorRepository(db)
 	err = authorRepository.Delete(context.TODO(), 1)
 	assert.NoError(t, err)
 }
