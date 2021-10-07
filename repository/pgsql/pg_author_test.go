@@ -1,4 +1,4 @@
-package pg_test
+package pgsql_test
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/syahidfrd/go-boilerplate/domain"
-	"github.com/syahidfrd/go-boilerplate/repository/pg"
+	"github.com/syahidfrd/go-boilerplate/repository/pgsql"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
@@ -24,12 +24,12 @@ func TestCreate(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 
-	query := "INSERT INTO authors (name, created_at, updated_at) VALUES ($1, $2, $3)"
+	query := "INSERT INTO authors"
 	mock.ExpectExec(regexp.QuoteMeta(query)).
 		WithArgs(author.Name, author.CreatedAt, author.UpdatedAt).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	authorRepository := pg.NewPostgresqlAuthorRepository(db)
+	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
 	err = authorRepository.Create(context.TODO(), author)
 	assert.NoError(t, err)
 }
@@ -55,7 +55,7 @@ func TestGetByID(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	authorRepository := pg.NewPostgresqlAuthorRepository(db)
+	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
 	author, err := authorRepository.GetByID(context.TODO(), 1)
 	assert.NoError(t, err)
 	assert.NotNil(t, author)
@@ -80,7 +80,7 @@ func TestFetch(t *testing.T) {
 	query := "SELECT id, name, created_at, updated_at FROM authors"
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	authorRepository := pg.NewPostgresqlAuthorRepository(db)
+	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
 	authors, err := authorRepository.Fetch(context.TODO())
 	assert.NoError(t, err)
 	assert.Len(t, authors, 2)
@@ -104,7 +104,7 @@ func TestUpdate(t *testing.T) {
 		WithArgs(author.Name, author.UpdatedAt, author.ID).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	authorRepository := pg.NewPostgresqlAuthorRepository(db)
+	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
 	err = authorRepository.Update(context.TODO(), author)
 	assert.NoError(t, err)
 }
@@ -120,7 +120,7 @@ func TestDelete(t *testing.T) {
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	authorRepository := pg.NewPostgresqlAuthorRepository(db)
+	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
 	err = authorRepository.Delete(context.TODO(), 1)
 	assert.NoError(t, err)
 }

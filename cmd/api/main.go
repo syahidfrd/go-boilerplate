@@ -1,35 +1,40 @@
 package main
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/syahidfrd/go-boilerplate/config"
 	httpDelivery "github.com/syahidfrd/go-boilerplate/delivery/http"
-	appMiddleware "github.com/syahidfrd/go-boilerplate/delivery/http/middleware"
-	"github.com/syahidfrd/go-boilerplate/domain"
+	httpDeliveryMiddleware "github.com/syahidfrd/go-boilerplate/delivery/http/middleware"
 	"github.com/syahidfrd/go-boilerplate/infrastructure/datastore"
-	repository "github.com/syahidfrd/go-boilerplate/repository/pg"
+	pgsqlRepository "github.com/syahidfrd/go-boilerplate/repository/pgsql"
 	"github.com/syahidfrd/go-boilerplate/usecase"
 )
 
 func main() {
 
-	var (
-		configApp        *config.Config          = config.LoadConfig()
-		dbInstance       *sql.DB                 = datastore.NewDatabase(configApp.DatabaseURL)
-		authorRepository domain.AuthorRepository = repository.NewPostgresqlAuthorRepository(dbInstance)
-		authorUsecase    domain.AuthorUsecase    = usecase.NewAuthorUsecase(authorRepository)
-	)
+	// Load config
+	configApp := config.LoadConfig()
 
+	// Setup infra
+	dbInstance := datastore.NewDatabase(configApp.DatabaseURL)
+
+	// Setup repository
+	authorRepository := pgsqlRepository.NewPgsqlAuthorRepository(dbInstance)
+
+	// Setup usecase
+	authorUsecase := usecase.NewAuthorUsecase(authorRepository)
+
+	// Setup route engine & middleware
 	e := echo.New()
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(appMiddleware.GenerateCorrelationID())
+	e.Use(httpDeliveryMiddleware.GenerateCorrelationID())
 
+	// Setup handler
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "i am alive")
 	})
