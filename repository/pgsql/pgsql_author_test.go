@@ -23,6 +23,7 @@ func TestCreate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+	defer db.Close()
 
 	query := "INSERT INTO authors"
 	mock.ExpectExec(regexp.QuoteMeta(query)).
@@ -39,6 +40,7 @@ func TestGetByID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+	defer db.Close()
 
 	authorMock := domain.Author{
 		ID:        1,
@@ -67,6 +69,7 @@ func TestFetch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+	defer db.Close()
 
 	mockAuthors := []domain.Author{
 		{ID: 1, Name: "name", CreatedAt: time.Now(), UpdatedAt: time.Now()},
@@ -87,16 +90,17 @@ func TestFetch(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
 	author := &domain.Author{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-	}
-
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 
 	query := "UPDATE authors SET name = $1, updated_at = $2 WHERE id = $3"
@@ -114,6 +118,7 @@ func TestDelete(t *testing.T) {
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
+	defer db.Close()
 
 	query := "DELETE FROM authors WHERE id = $1"
 	mock.ExpectExec(regexp.QuoteMeta(query)).

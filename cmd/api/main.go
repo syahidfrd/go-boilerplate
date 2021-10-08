@@ -10,7 +10,7 @@ import (
 	httpDeliveryMiddleware "github.com/syahidfrd/go-boilerplate/delivery/http/middleware"
 	"github.com/syahidfrd/go-boilerplate/infrastructure/datastore"
 	pgsqlRepository "github.com/syahidfrd/go-boilerplate/repository/pgsql"
-	"github.com/syahidfrd/go-boilerplate/repository/redis"
+	redisRepository "github.com/syahidfrd/go-boilerplate/repository/redis"
 	"github.com/syahidfrd/go-boilerplate/usecase"
 )
 
@@ -24,7 +24,7 @@ func main() {
 	cacheInstance := datastore.NewCache(configApp.CacheURL)
 
 	// Setup repository
-	redisRepository := redis.NewRedisRepository(cacheInstance)
+	redisRepository := redisRepository.NewRedisRepository(cacheInstance)
 	authorRepository := pgsqlRepository.NewPgsqlAuthorRepository(dbInstance)
 
 	// Setup usecase
