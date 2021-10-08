@@ -12,14 +12,14 @@ import (
 	"github.com/syahidfrd/go-boilerplate/utils"
 )
 
-type authorHandler struct {
-	authorUsecase domain.AuthorUsecase
+type AuthorHandler struct {
+	AuthorUsecase domain.AuthorUsecase
 }
 
 // NewAuthorHandler will initialize the authors/ resources endpoint
 func NewAuthorHandler(e *echo.Group, authorUsecase domain.AuthorUsecase) {
-	handler := &authorHandler{
-		authorUsecase: authorUsecase,
+	handler := &AuthorHandler{
+		AuthorUsecase: authorUsecase,
 	}
 
 	e.POST("/authors", handler.Create)
@@ -30,7 +30,7 @@ func NewAuthorHandler(e *echo.Group, authorUsecase domain.AuthorUsecase) {
 }
 
 // Create will store the author by given request body
-func (h *authorHandler) Create(c echo.Context) error {
+func (h *AuthorHandler) Create(c echo.Context) error {
 	ctx := c.Request().Context()
 	var req request.CreateAuthorReq
 
@@ -43,7 +43,7 @@ func (h *authorHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, utils.NewValidationError(errValidations))
 	}
 
-	if err := h.authorUsecase.Create(ctx, &req); err != nil {
+	if err := h.AuthorUsecase.Create(ctx, &req); err != nil {
 		return c.JSON(http.StatusInternalServerError, utils.NewError(err))
 	}
 
@@ -54,14 +54,14 @@ func (h *authorHandler) Create(c echo.Context) error {
 }
 
 // GetByID will get author by given id
-func (h *authorHandler) GetByID(c echo.Context) error {
+func (h *AuthorHandler) GetByID(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
 	}
 
-	author, err := h.authorUsecase.GetByID(ctx, int64(id))
+	author, err := h.AuthorUsecase.GetByID(ctx, int64(id))
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
@@ -74,10 +74,10 @@ func (h *authorHandler) GetByID(c echo.Context) error {
 }
 
 // Fetch will fetch the author
-func (h *authorHandler) Fetch(c echo.Context) error {
+func (h *AuthorHandler) Fetch(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	authors, err := h.authorUsecase.Fetch(ctx)
+	authors, err := h.AuthorUsecase.Fetch(ctx)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, utils.NewError(err))
 	}
@@ -86,7 +86,7 @@ func (h *authorHandler) Fetch(c echo.Context) error {
 }
 
 // Update will get author by given request body
-func (h *authorHandler) Update(c echo.Context) error {
+func (h *AuthorHandler) Update(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -103,7 +103,7 @@ func (h *authorHandler) Update(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, utils.NewValidationError(errValidations))
 	}
 
-	if err := h.authorUsecase.Update(ctx, int64(id), &req); err != nil {
+	if err := h.AuthorUsecase.Update(ctx, int64(id), &req); err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
 		}
@@ -117,14 +117,14 @@ func (h *authorHandler) Update(c echo.Context) error {
 }
 
 // Delete will delete author by given param
-func (h *authorHandler) Delete(c echo.Context) error {
+func (h *AuthorHandler) Delete(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
 	}
 
-	if err := h.authorUsecase.Delete(ctx, int64(id)); err != nil {
+	if err := h.AuthorUsecase.Delete(ctx, int64(id)); err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
 		}
