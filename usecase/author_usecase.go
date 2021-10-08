@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/syahidfrd/go-boilerplate/domain"
@@ -41,7 +40,6 @@ func (u *authorUsecase) GetByID(ctx context.Context, id int64) (author domain.Au
 func (u *authorUsecase) Fetch(ctx context.Context) (authors []domain.Author, err error) {
 	authorsCached, _ := u.redisRepository.Get("authors")
 	if err = json.Unmarshal([]byte(authorsCached), &authors); err == nil {
-		fmt.Println("from cache")
 		return
 	}
 
