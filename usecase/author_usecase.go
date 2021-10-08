@@ -2,20 +2,25 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/syahidfrd/go-boilerplate/domain"
+	"github.com/syahidfrd/go-boilerplate/repository/redis"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
 )
 
 type authorUsecase struct {
 	authorRepository domain.AuthorRepository
+	redisRepository  redis.RedisRepository
 }
 
 // NewAuthorUsecase will create new an authorUsecase object representation of domain.AuthorUsecase interface
-func NewAuthorUsecase(authorRepository domain.AuthorRepository) domain.AuthorUsecase {
+func NewAuthorUsecase(authorRepository domain.AuthorRepository, redisRepository redis.RedisRepository) domain.AuthorUsecase {
 	return &authorUsecase{
 		authorRepository: authorRepository,
+		redisRepository:  redisRepository,
 	}
 }
 
@@ -34,7 +39,19 @@ func (u *authorUsecase) GetByID(ctx context.Context, id int64) (author domain.Au
 }
 
 func (u *authorUsecase) Fetch(ctx context.Context) (authors []domain.Author, err error) {
+	authorsCached, _ := u.redisRepository.Get("authors")
+	if err = json.Unmarshal([]byte(authorsCached), &authors); err == nil {
+		fmt.Println("from cache")
+		return
+	}
+
 	authors, err = u.authorRepository.Fetch(ctx)
+	if err != nil {
+		return
+	}
+
+	authorsString, _ := json.Marshal(&authors)
+	u.redisRepository.Set("authors", authorsString, 60*time.Second)
 	return
 }
 

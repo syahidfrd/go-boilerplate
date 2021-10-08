@@ -16,6 +16,10 @@ func NewDatabase(databaseURL string) *sql.DB {
 		panic(err)
 	}
 
+	if err := db.Ping(); err != nil {
+		panic(err)
+	}
+
 	db.SetConnMaxLifetime(time.Minute * 5)
 	db.SetMaxIdleConns(0)
 	db.SetMaxOpenConns(5)

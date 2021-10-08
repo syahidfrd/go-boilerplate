@@ -10,6 +10,7 @@ import (
 	httpDeliveryMiddleware "github.com/syahidfrd/go-boilerplate/delivery/http/middleware"
 	"github.com/syahidfrd/go-boilerplate/infrastructure/datastore"
 	pgsqlRepository "github.com/syahidfrd/go-boilerplate/repository/pgsql"
+	"github.com/syahidfrd/go-boilerplate/repository/redis"
 	"github.com/syahidfrd/go-boilerplate/usecase"
 )
 
@@ -20,12 +21,14 @@ func main() {
 
 	// Setup infra
 	dbInstance := datastore.NewDatabase(configApp.DatabaseURL)
+	cacheInstance := datastore.NewCache(configApp.CacheURL)
 
 	// Setup repository
+	redisRepository := redis.NewRedisRepository(cacheInstance)
 	authorRepository := pgsqlRepository.NewPgsqlAuthorRepository(dbInstance)
 
 	// Setup usecase
-	authorUsecase := usecase.NewAuthorUsecase(authorRepository)
+	authorUsecase := usecase.NewAuthorUsecase(authorRepository, redisRepository)
 
 	// Setup route engine & middleware
 	e := echo.New()
