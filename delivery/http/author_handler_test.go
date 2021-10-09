@@ -41,6 +41,7 @@ func TestCreate(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors")
 
 		handler := httpDelivery.AuthorHandler{
 			AuthorUsecase: mockAuthorUsecase,
@@ -66,6 +67,7 @@ func TestCreate(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors")
 
 		handler := httpDelivery.AuthorHandler{
 			AuthorUsecase: mockAuthorUsecase,
@@ -91,6 +93,7 @@ func TestCreate(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors")
 
 		handler := httpDelivery.AuthorHandler{
 			AuthorUsecase: mockAuthorUsecase,
@@ -124,6 +127,7 @@ func TestGetByID(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
@@ -148,6 +152,7 @@ func TestGetByID(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
@@ -172,6 +177,7 @@ func TestGetByID(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
@@ -208,6 +214,7 @@ func TestFetch(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/")
 
 		handler := httpDelivery.AuthorHandler{
 			AuthorUsecase: mockAuthorUsecase,
@@ -229,6 +236,7 @@ func TestFetch(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/")
 
 		handler := httpDelivery.AuthorHandler{
 			AuthorUsecase: mockAuthorUsecase,
@@ -267,6 +275,7 @@ func TestUpdate(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
@@ -294,6 +303,7 @@ func TestUpdate(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
@@ -321,6 +331,7 @@ func TestUpdate(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
@@ -348,6 +359,7 @@ func TestUpdate(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
@@ -382,6 +394,7 @@ func TestDelete(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
@@ -405,6 +418,7 @@ func TestDelete(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
@@ -428,6 +442,7 @@ func TestDelete(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
+		c.SetPath("/api/v1/authors/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
