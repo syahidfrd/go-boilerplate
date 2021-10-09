@@ -18,9 +18,13 @@ run-server:
 build-api:
 	go build ./cmd/api/main.go
 
+test:
+	go test -v ./...
+
 .PHONY:
 	migration-create
 	migration-up
 	migration-down
 	run-server
 	build-api
+	test
