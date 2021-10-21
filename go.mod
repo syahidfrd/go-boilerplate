@@ -11,6 +11,7 @@ require (
 	github.com/elliotchance/redismock v1.5.3
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/gofrs/uuid v4.1.0+incompatible
 	github.com/gomodule/redigo v1.8.5 // indirect
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo v3.3.10+incompatible

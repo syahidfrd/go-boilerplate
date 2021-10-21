@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/syahidfrd/go-boilerplate/config"
 	httpDelivery "github.com/syahidfrd/go-boilerplate/delivery/http"
-	httpDeliveryMiddleware "github.com/syahidfrd/go-boilerplate/delivery/http/middleware"
 	"github.com/syahidfrd/go-boilerplate/infrastructure/datastore"
+	appMiddleware "github.com/syahidfrd/go-boilerplate/middleware"
 	pgsqlRepository "github.com/syahidfrd/go-boilerplate/repository/pgsql"
 	redisRepository "github.com/syahidfrd/go-boilerplate/repository/redis"
 	"github.com/syahidfrd/go-boilerplate/usecase"
@@ -30,12 +30,15 @@ func main() {
 	// Setup usecase
 	authorUsecase := usecase.NewAuthorUsecase(authorRepository, redisRepository)
 
+	// Setup middleware manager
+	middManager := appMiddleware.NewMiddlewareManager()
+
 	// Setup route engine & middleware
 	e := echo.New()
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(httpDeliveryMiddleware.GenerateCorrelationID())
+	e.Use(middManager.GenerateCorrelationID())
 
 	// Setup handler
 	e.GET("/", func(c echo.Context) error {

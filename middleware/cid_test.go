@@ -8,7 +8,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/syahidfrd/go-boilerplate/delivery/http/middleware"
+	"github.com/syahidfrd/go-boilerplate/entity"
+	appMiddleware "github.com/syahidfrd/go-boilerplate/middleware"
 )
 
 func TestGenerateCorrelationID(t *testing.T) {
@@ -21,10 +22,10 @@ func TestGenerateCorrelationID(t *testing.T) {
 		return c.String(http.StatusOK, "test")
 	}
 
-	cid := middleware.GenerateCorrelationID()
+	cid := appMiddleware.NewMiddlewareManager().GenerateCorrelationID()
 	h := cid(handler)
 	err := h(c)
 
 	require.NoError(t, err)
-	assert.NotNil(t, rec.Header().Get(middleware.HeaderXCorrelationID))
+	assert.NotNil(t, rec.Header().Get(entity.HeaderXCorrelationID))
 }
