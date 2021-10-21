@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/syahidfrd/go-boilerplate/domain"
+	"github.com/syahidfrd/go-boilerplate/entity"
 	"github.com/syahidfrd/go-boilerplate/repository/pgsql"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
 func TestCreate(t *testing.T) {
-	author := &domain.Author{
+	author := &entity.Author{
 		Name:      "name",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -42,7 +42,7 @@ func TestGetByID(t *testing.T) {
 	}
 	defer db.Close()
 
-	authorMock := domain.Author{
+	authorMock := entity.Author{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
@@ -71,7 +71,7 @@ func TestFetch(t *testing.T) {
 	}
 	defer db.Close()
 
-	mockAuthors := []domain.Author{
+	mockAuthors := []entity.Author{
 		{ID: 1, Name: "name", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		{ID: 2, Name: "name 2", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 	}
@@ -96,7 +96,7 @@ func TestUpdate(t *testing.T) {
 	}
 	defer db.Close()
 
-	author := &domain.Author{
+	author := &entity.Author{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),

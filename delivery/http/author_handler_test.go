@@ -16,8 +16,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	httpDelivery "github.com/syahidfrd/go-boilerplate/delivery/http"
-	"github.com/syahidfrd/go-boilerplate/domain"
-	"github.com/syahidfrd/go-boilerplate/domain/mocks"
+	"github.com/syahidfrd/go-boilerplate/entity"
+	"github.com/syahidfrd/go-boilerplate/mocks"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
 )
 
@@ -109,7 +109,7 @@ func TestCreate(t *testing.T) {
 
 func TestGetByID(t *testing.T) {
 	mockAuthorUsecase := new(mocks.AuthorUsecase)
-	mockAuthor := domain.Author{
+	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
@@ -143,7 +143,7 @@ func TestGetByID(t *testing.T) {
 
 	t.Run("data-not-exist", func(t *testing.T) {
 		mockAuthorUsecase.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
-			Return(domain.Author{}, sql.ErrNoRows).Once()
+			Return(entity.Author{}, sql.ErrNoRows).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.GET, "/api/v1/authors/"+strconv.Itoa(int(mockAuthor.ID)), strings.NewReader(""))
@@ -168,7 +168,7 @@ func TestGetByID(t *testing.T) {
 
 	t.Run("error-usecase", func(t *testing.T) {
 		mockAuthorUsecase.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
-			Return(domain.Author{}, errors.New("Unexpected Error")).Once()
+			Return(entity.Author{}, errors.New("Unexpected Error")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.GET, "/api/v1/authors/"+strconv.Itoa(int(mockAuthor.ID)), strings.NewReader(""))
@@ -194,14 +194,14 @@ func TestGetByID(t *testing.T) {
 
 func TestFetch(t *testing.T) {
 	mockAuthorUsecase := new(mocks.AuthorUsecase)
-	mockAuthor := domain.Author{
+	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
-	mockListAuthor := make([]domain.Author, 0)
+	mockListAuthor := make([]entity.Author, 0)
 	mockListAuthor = append(mockListAuthor, mockAuthor)
 
 	t.Run("success", func(t *testing.T) {
@@ -227,7 +227,7 @@ func TestFetch(t *testing.T) {
 	})
 
 	t.Run("error-usecase", func(t *testing.T) {
-		mockAuthorUsecase.On("Fetch", mock.Anything).Return([]domain.Author{}, errors.New("Unexpected Error")).Once()
+		mockAuthorUsecase.On("Fetch", mock.Anything).Return([]entity.Author{}, errors.New("Unexpected Error")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.GET, "/api/v1/authors/", strings.NewReader(""))
@@ -251,7 +251,7 @@ func TestFetch(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	mockAuthorUsecase := new(mocks.AuthorUsecase)
-	mockAuthor := domain.Author{
+	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
@@ -377,7 +377,7 @@ func TestUpdate(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	mockAuthorUsecase := new(mocks.AuthorUsecase)
-	mockAuthor := domain.Author{
+	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),

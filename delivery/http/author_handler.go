@@ -7,17 +7,17 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo"
-	"github.com/syahidfrd/go-boilerplate/domain"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
+	"github.com/syahidfrd/go-boilerplate/usecase"
 	"github.com/syahidfrd/go-boilerplate/utils"
 )
 
 type AuthorHandler struct {
-	AuthorUsecase domain.AuthorUsecase
+	AuthorUsecase usecase.AuthorUsecase
 }
 
 // NewAuthorHandler will initialize the authors/ resources endpoint
-func NewAuthorHandler(e *echo.Group, authorUsecase domain.AuthorUsecase) {
+func NewAuthorHandler(e *echo.Group, authorUsecase usecase.AuthorUsecase) {
 	handler := &AuthorHandler{
 		AuthorUsecase: authorUsecase,
 	}
