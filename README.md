@@ -4,8 +4,12 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/andhikayuana/qiscus-unofficial-go)](https://goreportcard.com/report/github.com/syahidfrd/go-boilerplate)
 
 ### Prerequisite
-Install go-migrate `https://github.com/golang-migrate/migrate` for running migration.
-App requires 2 database (postgreSQL and redis server), run from your local machine or run it using docker with the following command:
+Install go-migrate for running migration
+```
+https://github.com/golang-migrate/migrate
+```
+
+App requires 2 database (postgreSQL and redis server), run from your local machine or run it using docker with the following command
 ```
 # run postgreSQL
 docker run -d -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=go-boilerplate postgres
