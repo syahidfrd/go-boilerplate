@@ -12,7 +12,7 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
-func TestCreate(t *testing.T) {
+func TestAuthorRepo_Create(t *testing.T) {
 	author := &entity.Author{
 		Name:      "name",
 		CreatedAt: time.Now(),
@@ -30,12 +30,12 @@ func TestCreate(t *testing.T) {
 		WithArgs(author.Name, author.CreatedAt, author.UpdatedAt).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
-	err = authorRepository.Create(context.TODO(), author)
+	authorRepo := pgsql.NewPgsqlAuthorRepository(db)
+	err = authorRepo.Create(context.TODO(), author)
 	assert.NoError(t, err)
 }
 
-func TestGetByID(t *testing.T) {
+func TestAuthorRepo_GetByID(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -57,14 +57,14 @@ func TestGetByID(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
-	author, err := authorRepository.GetByID(context.TODO(), 1)
+	authorRepo := pgsql.NewPgsqlAuthorRepository(db)
+	author, err := authorRepo.GetByID(context.TODO(), 1)
 	assert.NoError(t, err)
 	assert.NotNil(t, author)
 	assert.Equal(t, authorMock.ID, author.ID)
 }
 
-func TestFetch(t *testing.T) {
+func TestAuthorRepo_Fetch(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -83,13 +83,13 @@ func TestFetch(t *testing.T) {
 	query := "SELECT id, name, created_at, updated_at FROM authors"
 	mock.ExpectQuery(query).WillReturnRows(rows)
 
-	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
-	authors, err := authorRepository.Fetch(context.TODO())
+	authorRepo := pgsql.NewPgsqlAuthorRepository(db)
+	authors, err := authorRepo.Fetch(context.TODO())
 	assert.NoError(t, err)
 	assert.Len(t, authors, 2)
 }
 
-func TestUpdate(t *testing.T) {
+func TestAuthorRepo_Update(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -108,12 +108,12 @@ func TestUpdate(t *testing.T) {
 		WithArgs(author.Name, author.UpdatedAt, author.ID).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
-	err = authorRepository.Update(context.TODO(), author)
+	authorRepo := pgsql.NewPgsqlAuthorRepository(db)
+	err = authorRepo.Update(context.TODO(), author)
 	assert.NoError(t, err)
 }
 
-func TestDelete(t *testing.T) {
+func TestAuthorRepo_Delete(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -125,7 +125,7 @@ func TestDelete(t *testing.T) {
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	authorRepository := pgsql.NewPgsqlAuthorRepository(db)
-	err = authorRepository.Delete(context.TODO(), 1)
+	authorRepo := pgsql.NewPgsqlAuthorRepository(db)
+	err = authorRepo.Delete(context.TODO(), 1)
 	assert.NoError(t, err)
 }

@@ -16,39 +16,39 @@ import (
 	"github.com/syahidfrd/go-boilerplate/usecase"
 )
 
-func TestCreate(t *testing.T) {
-	mockRedisRepository := new(mocks.RedisRepository)
-	mockAuthorRepository := new(mocks.AuthorRepository)
-	mockCreateAuthorReq := request.CreateAuthorReq{
+func TestAuthorUC_Create(t *testing.T) {
+	mockRedisRepo := new(mocks.RedisRepository)
+	mockAuthorRepo := new(mocks.AuthorRepository)
+	createAuthorReq := request.CreateAuthorReq{
 		Name: "name",
 	}
 
 	t.Run("success", func(t *testing.T) {
-		mockAuthorRepository.On("Create", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(nil).Once()
+		mockAuthorRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
-		err := authorUsecase.Create(context.TODO(), &mockCreateAuthorReq)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		err := authorUsecase.Create(context.TODO(), &createAuthorReq)
 
 		assert.NoError(t, err)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 
 	t.Run("error-db", func(t *testing.T) {
-		mockAuthorRepository.On("Create", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(errors.New("Unexpected Error")).Once()
+		mockAuthorRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(errors.New("Unexpected Error")).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
-		err := authorUsecase.Create(context.TODO(), &mockCreateAuthorReq)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		err := authorUsecase.Create(context.TODO(), &createAuthorReq)
 
 		assert.NotNil(t, err)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 }
 
-func TestGetByID(t *testing.T) {
-	mockRedisRepository := new(mocks.RedisRepository)
-	mockAuthorRepository := new(mocks.AuthorRepository)
+func TestAuthorUC_GetByID(t *testing.T) {
+	mockRedisRepo := new(mocks.RedisRepository)
+	mockAuthorRepo := new(mocks.AuthorRepository)
 	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
@@ -57,46 +57,46 @@ func TestGetByID(t *testing.T) {
 	}
 
 	t.Run("success", func(t *testing.T) {
-		mockAuthorRepository.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
+		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
 		author, err := authorUsecase.GetByID(context.TODO(), mockAuthor.ID)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, author)
 		assert.Equal(t, author.ID, mockAuthor.ID)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 
 	t.Run("author-not-exist", func(t *testing.T) {
-		mockAuthorRepository.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, sql.ErrNoRows).Once()
+		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, sql.ErrNoRows).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
 		author, err := authorUsecase.GetByID(context.TODO(), mockAuthor.ID)
 
 		assert.NotNil(t, err)
 		assert.Equal(t, author, entity.Author{})
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 
 	t.Run("error-db", func(t *testing.T) {
-		mockAuthorRepository.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, errors.New("Unexpected Error")).Once()
+		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, errors.New("Unexpected Error")).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
 		author, err := authorUsecase.GetByID(context.TODO(), mockAuthor.ID)
 
 		assert.NotNil(t, err)
 		assert.Equal(t, author, entity.Author{})
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 }
 
-func TestFetch(t *testing.T) {
-	mockRedisRepository := new(mocks.RedisRepository)
-	mockAuthorRepository := new(mocks.AuthorRepository)
+func TestAuthorUC_Fetch(t *testing.T) {
+	mockRedisRepo := new(mocks.RedisRepository)
+	mockAuthorRepo := new(mocks.AuthorRepository)
 	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
@@ -108,99 +108,99 @@ func TestFetch(t *testing.T) {
 	mockListAuthor = append(mockListAuthor, mockAuthor)
 
 	t.Run("success", func(t *testing.T) {
-		mockRedisRepository.On("Get", mock.AnythingOfType("string")).Return("", errors.New("Unexpected Error")).Once()
-		mockAuthorRepository.On("Fetch", mock.Anything).Return(mockListAuthor, nil).Once()
-		mockRedisRepository.On("Set", mock.AnythingOfType("string"), mock.AnythingOfType("[]uint8"), mock.AnythingOfType("time.Duration")).Return(nil).Once()
+		mockRedisRepo.On("Get", mock.AnythingOfType("string")).Return("", errors.New("Unexpected Error")).Once()
+		mockAuthorRepo.On("Fetch", mock.Anything).Return(mockListAuthor, nil).Once()
+		mockRedisRepo.On("Set", mock.AnythingOfType("string"), mock.AnythingOfType("[]uint8"), mock.AnythingOfType("time.Duration")).Return(nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
 		authors, err := authorUsecase.Fetch(context.TODO())
 
 		assert.NoError(t, err)
 		assert.Len(t, authors, len(mockListAuthor))
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 
 	t.Run("success-get-from-cache", func(t *testing.T) {
 		mockListAuthorByte, _ := json.Marshal(mockListAuthor)
-		mockRedisRepository.On("Get", mock.AnythingOfType("string")).Return(string(mockListAuthorByte), nil).Once()
+		mockRedisRepo.On("Get", mock.AnythingOfType("string")).Return(string(mockListAuthorByte), nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
 		authors, err := authorUsecase.Fetch(context.TODO())
 
 		assert.NoError(t, err)
 		assert.Len(t, authors, len(mockListAuthor))
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 
 	})
 
 	t.Run("error-db", func(t *testing.T) {
-		mockRedisRepository.On("Get", mock.AnythingOfType("string")).Return("", errors.New("Unexpected Error")).Once()
-		mockAuthorRepository.On("Fetch", mock.Anything).Return([]entity.Author{}, errors.New("Unexpected Error")).Once()
+		mockRedisRepo.On("Get", mock.AnythingOfType("string")).Return("", errors.New("Unexpected Error")).Once()
+		mockAuthorRepo.On("Fetch", mock.Anything).Return([]entity.Author{}, errors.New("Unexpected Error")).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
 		authors, err := authorUsecase.Fetch(context.TODO())
 
 		assert.NotNil(t, err)
 		assert.Len(t, authors, 0)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 }
 
-func TestUpdate(t *testing.T) {
-	mockRedisRepository := new(mocks.RedisRepository)
-	mockAuthorRepository := new(mocks.AuthorRepository)
+func TestAuthorUC_Update(t *testing.T) {
+	mockRedisRepo := new(mocks.RedisRepository)
+	mockAuthorRepo := new(mocks.AuthorRepository)
 	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	mockUpdateAuthorReq := request.UpdateAuthorReq{
+	updateAuthorReq := request.UpdateAuthorReq{
 		Name: "name 2",
 	}
 
 	t.Run("success", func(t *testing.T) {
-		mockAuthorRepository.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
-		mockAuthorRepository.On("Update", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(nil).Once()
+		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
+		mockAuthorRepo.On("Update", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
-		err := authorUsecase.Update(context.TODO(), mockAuthor.ID, &mockUpdateAuthorReq)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		err := authorUsecase.Update(context.TODO(), mockAuthor.ID, &updateAuthorReq)
 
 		assert.NoError(t, err)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 
 	t.Run("author-not-exist", func(t *testing.T) {
-		mockAuthorRepository.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, sql.ErrNoRows).Once()
+		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, sql.ErrNoRows).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
-		err := authorUsecase.Update(context.TODO(), mockAuthor.ID, &mockUpdateAuthorReq)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		err := authorUsecase.Update(context.TODO(), mockAuthor.ID, &updateAuthorReq)
 
 		assert.NotNil(t, err)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 
 	t.Run("error-db", func(t *testing.T) {
-		mockAuthorRepository.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
-		mockAuthorRepository.On("Update", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(errors.New("Unexpected Error")).Once()
+		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
+		mockAuthorRepo.On("Update", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(errors.New("Unexpected Error")).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
-		err := authorUsecase.Update(context.TODO(), mockAuthor.ID, &mockUpdateAuthorReq)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		err := authorUsecase.Update(context.TODO(), mockAuthor.ID, &updateAuthorReq)
 
 		assert.NotNil(t, err)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 }
 
-func TestDelete(t *testing.T) {
-	mockRedisRepository := new(mocks.RedisRepository)
-	mockAuthorRepository := new(mocks.AuthorRepository)
+func TestAuthorUC_Delete(t *testing.T) {
+	mockRedisRepo := new(mocks.RedisRepository)
+	mockAuthorRepo := new(mocks.AuthorRepository)
 	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
@@ -209,37 +209,37 @@ func TestDelete(t *testing.T) {
 	}
 
 	t.Run("success", func(t *testing.T) {
-		mockAuthorRepository.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
-		mockAuthorRepository.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(nil).Once()
+		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
+		mockAuthorRepo.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(nil).Once()
 
-		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
+		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
 		err := authorRepository.Delete(context.TODO(), mockAuthor.ID)
 
 		assert.NoError(t, err)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 
 	t.Run("author-not-exist", func(t *testing.T) {
-		mockAuthorRepository.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, sql.ErrNoRows).Once()
+		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, sql.ErrNoRows).Once()
 
-		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
+		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
 		err := authorRepository.Delete(context.TODO(), mockAuthor.ID)
 
 		assert.NotNil(t, err)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 
 	t.Run("error-db", func(t *testing.T) {
-		mockAuthorRepository.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
-		mockAuthorRepository.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(errors.New("Unexpected Error")).Once()
+		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
+		mockAuthorRepo.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(errors.New("Unexpected Error")).Once()
 
-		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepository, mockRedisRepository)
+		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
 		err := authorRepository.Delete(context.TODO(), mockAuthor.ID)
 
 		assert.NotNil(t, err)
-		mockRedisRepository.AssertExpectations(t)
-		mockAuthorRepository.AssertExpectations(t)
+		mockRedisRepo.AssertExpectations(t)
+		mockAuthorRepo.AssertExpectations(t)
 	})
 }

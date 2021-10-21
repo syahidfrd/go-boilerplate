@@ -21,20 +21,20 @@ type AuthorUsecase interface {
 }
 
 type authorUsecase struct {
-	authorRepository pgsql.AuthorRepository
-	redisRepository  redis.RedisRepository
+	authorRepo pgsql.AuthorRepository
+	redisRepo  redis.RedisRepository
 }
 
 // NewAuthorUsecase will create new an authorUsecase object representation of AuthorUsecase interface
-func NewAuthorUsecase(authorRepository pgsql.AuthorRepository, redisRepository redis.RedisRepository) AuthorUsecase {
+func NewAuthorUsecase(authorRepo pgsql.AuthorRepository, redisRepo redis.RedisRepository) AuthorUsecase {
 	return &authorUsecase{
-		authorRepository: authorRepository,
-		redisRepository:  redisRepository,
+		authorRepo: authorRepo,
+		redisRepo:  redisRepo,
 	}
 }
 
 func (u *authorUsecase) Create(ctx context.Context, request *request.CreateAuthorReq) (err error) {
-	err = u.authorRepository.Create(ctx, &entity.Author{
+	err = u.authorRepo.Create(ctx, &entity.Author{
 		Name:      request.Name,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -43,28 +43,28 @@ func (u *authorUsecase) Create(ctx context.Context, request *request.CreateAutho
 }
 
 func (u *authorUsecase) GetByID(ctx context.Context, id int64) (author entity.Author, err error) {
-	author, err = u.authorRepository.GetByID(ctx, id)
+	author, err = u.authorRepo.GetByID(ctx, id)
 	return
 }
 
 func (u *authorUsecase) Fetch(ctx context.Context) (authors []entity.Author, err error) {
-	authorsCached, _ := u.redisRepository.Get("authors")
+	authorsCached, _ := u.redisRepo.Get("authors")
 	if err = json.Unmarshal([]byte(authorsCached), &authors); err == nil {
 		return
 	}
 
-	authors, err = u.authorRepository.Fetch(ctx)
+	authors, err = u.authorRepo.Fetch(ctx)
 	if err != nil {
 		return
 	}
 
 	authorsString, _ := json.Marshal(&authors)
-	u.redisRepository.Set("authors", authorsString, 60*time.Second)
+	u.redisRepo.Set("authors", authorsString, 60*time.Second)
 	return
 }
 
 func (u *authorUsecase) Update(ctx context.Context, id int64, request *request.UpdateAuthorReq) (err error) {
-	author, err := u.authorRepository.GetByID(ctx, id)
+	author, err := u.authorRepo.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -72,16 +72,16 @@ func (u *authorUsecase) Update(ctx context.Context, id int64, request *request.U
 	author.Name = request.Name
 	author.UpdatedAt = time.Now()
 
-	err = u.authorRepository.Update(ctx, &author)
+	err = u.authorRepo.Update(ctx, &author)
 	return
 }
 
 func (u *authorUsecase) Delete(ctx context.Context, id int64) (err error) {
-	_, err = u.authorRepository.GetByID(ctx, id)
+	_, err = u.authorRepo.GetByID(ctx, id)
 	if err != nil {
 		return
 	}
 
-	err = u.authorRepository.Delete(ctx, id)
+	err = u.authorRepo.Delete(ctx, id)
 	return
 }

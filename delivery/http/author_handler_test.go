@@ -21,17 +21,17 @@ import (
 	"github.com/syahidfrd/go-boilerplate/transport/request"
 )
 
-func TestCreate(t *testing.T) {
-	mockAuthorUsecase := new(mocks.AuthorUsecase)
-	mockCreateAuthorReq := request.CreateAuthorReq{
+func TestAuthorHandler_Create(t *testing.T) {
+	mockAuthorUC := new(mocks.AuthorUsecase)
+	createAuthorReq := request.CreateAuthorReq{
 		Name: "name",
 	}
 
 	t.Run("success", func(t *testing.T) {
-		jsonReq, err := json.Marshal(mockCreateAuthorReq)
+		jsonReq, err := json.Marshal(createAuthorReq)
 		assert.NoError(t, err)
 
-		mockAuthorUsecase.On("Create", mock.Anything, mock.AnythingOfType("*request.CreateAuthorReq")).
+		mockAuthorUC.On("Create", mock.Anything, mock.AnythingOfType("*request.CreateAuthorReq")).
 			Return(nil).Once()
 
 		e := echo.New()
@@ -44,20 +44,20 @@ func TestCreate(t *testing.T) {
 		c.SetPath("/api/v1/authors")
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Create(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("error-validation", func(t *testing.T) {
-		mockInvalidCreateAuthorReq := request.CreateAuthorReq{
+		invalidCreateAuthorReq := request.CreateAuthorReq{
 			Name: "",
 		}
-		jsonReq, err := json.Marshal(mockInvalidCreateAuthorReq)
+		jsonReq, err := json.Marshal(invalidCreateAuthorReq)
 		assert.NoError(t, err)
 
 		e := echo.New()
@@ -70,20 +70,20 @@ func TestCreate(t *testing.T) {
 		c.SetPath("/api/v1/authors")
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Create(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("error-usecase", func(t *testing.T) {
-		jsonReq, err := json.Marshal(mockCreateAuthorReq)
+		jsonReq, err := json.Marshal(createAuthorReq)
 		assert.NoError(t, err)
 
-		mockAuthorUsecase.On("Create", mock.Anything, mock.AnythingOfType("*request.CreateAuthorReq")).
+		mockAuthorUC.On("Create", mock.Anything, mock.AnythingOfType("*request.CreateAuthorReq")).
 			Return(errors.New("Unexpected Error")).Once()
 
 		e := echo.New()
@@ -96,19 +96,19 @@ func TestCreate(t *testing.T) {
 		c.SetPath("/api/v1/authors")
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Create(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 }
 
-func TestGetByID(t *testing.T) {
-	mockAuthorUsecase := new(mocks.AuthorUsecase)
+func TestAuthorHandler_GetByID(t *testing.T) {
+	mockAuthorUC := new(mocks.AuthorUsecase)
 	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
@@ -117,7 +117,7 @@ func TestGetByID(t *testing.T) {
 	}
 
 	t.Run("success", func(t *testing.T) {
-		mockAuthorUsecase.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
+		mockAuthorUC.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
 			Return(mockAuthor, nil).Once()
 
 		e := echo.New()
@@ -132,17 +132,17 @@ func TestGetByID(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.GetByID(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("data-not-exist", func(t *testing.T) {
-		mockAuthorUsecase.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
+		mockAuthorUC.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
 			Return(entity.Author{}, sql.ErrNoRows).Once()
 
 		e := echo.New()
@@ -157,17 +157,17 @@ func TestGetByID(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.GetByID(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusNotFound, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("error-usecase", func(t *testing.T) {
-		mockAuthorUsecase.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
+		mockAuthorUC.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
 			Return(entity.Author{}, errors.New("Unexpected Error")).Once()
 
 		e := echo.New()
@@ -182,18 +182,18 @@ func TestGetByID(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.GetByID(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 }
 
-func TestFetch(t *testing.T) {
-	mockAuthorUsecase := new(mocks.AuthorUsecase)
+func TestAuthorHandler_Fetch(t *testing.T) {
+	mockAuthorUC := new(mocks.AuthorUsecase)
 	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
@@ -205,7 +205,7 @@ func TestFetch(t *testing.T) {
 	mockListAuthor = append(mockListAuthor, mockAuthor)
 
 	t.Run("success", func(t *testing.T) {
-		mockAuthorUsecase.On("Fetch", mock.Anything).Return(mockListAuthor, nil).Once()
+		mockAuthorUC.On("Fetch", mock.Anything).Return(mockListAuthor, nil).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.GET, "/api/v1/authors/", strings.NewReader(""))
@@ -217,17 +217,17 @@ func TestFetch(t *testing.T) {
 		c.SetPath("/api/v1/authors/")
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Fetch(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("error-usecase", func(t *testing.T) {
-		mockAuthorUsecase.On("Fetch", mock.Anything).Return([]entity.Author{}, errors.New("Unexpected Error")).Once()
+		mockAuthorUC.On("Fetch", mock.Anything).Return([]entity.Author{}, errors.New("Unexpected Error")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.GET, "/api/v1/authors/", strings.NewReader(""))
@@ -239,33 +239,33 @@ func TestFetch(t *testing.T) {
 		c.SetPath("/api/v1/authors/")
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Fetch(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 }
 
-func TestUpdate(t *testing.T) {
-	mockAuthorUsecase := new(mocks.AuthorUsecase)
+func TestAuthorHandler_Update(t *testing.T) {
+	mockAuthorUC := new(mocks.AuthorUsecase)
 	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	mockUpdateAuthorReq := request.UpdateAuthorReq{
+	updateAuthorReq := request.UpdateAuthorReq{
 		Name: "name",
 	}
 
 	t.Run("success", func(t *testing.T) {
-		jsonReq, err := json.Marshal(mockUpdateAuthorReq)
+		jsonReq, err := json.Marshal(updateAuthorReq)
 		assert.NoError(t, err)
 
-		mockAuthorUsecase.On("Update", mock.Anything, mock.AnythingOfType("int64"), mock.AnythingOfType("*request.UpdateAuthorReq")).
+		mockAuthorUC.On("Update", mock.Anything, mock.AnythingOfType("int64"), mock.AnythingOfType("*request.UpdateAuthorReq")).
 			Return(nil).Once()
 
 		e := echo.New()
@@ -280,20 +280,20 @@ func TestUpdate(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Update(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("error-validation", func(t *testing.T) {
-		mockInvalidUpdateAuthorReq := request.UpdateAuthorReq{
+		invalidUpdateAuthorReq := request.UpdateAuthorReq{
 			Name: "",
 		}
-		jsonReq, err := json.Marshal(mockInvalidUpdateAuthorReq)
+		jsonReq, err := json.Marshal(invalidUpdateAuthorReq)
 		assert.NoError(t, err)
 
 		e := echo.New()
@@ -308,20 +308,20 @@ func TestUpdate(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Update(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("data-not-exist", func(t *testing.T) {
-		jsonReq, err := json.Marshal(mockUpdateAuthorReq)
+		jsonReq, err := json.Marshal(updateAuthorReq)
 		assert.NoError(t, err)
 
-		mockAuthorUsecase.On("Update", mock.Anything, mock.AnythingOfType("int64"), mock.AnythingOfType("*request.UpdateAuthorReq")).
+		mockAuthorUC.On("Update", mock.Anything, mock.AnythingOfType("int64"), mock.AnythingOfType("*request.UpdateAuthorReq")).
 			Return(sql.ErrNoRows).Once()
 
 		e := echo.New()
@@ -336,20 +336,20 @@ func TestUpdate(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Update(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusNotFound, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("error-usecase", func(t *testing.T) {
-		jsonReq, err := json.Marshal(mockUpdateAuthorReq)
+		jsonReq, err := json.Marshal(updateAuthorReq)
 		assert.NoError(t, err)
 
-		mockAuthorUsecase.On("Update", mock.Anything, mock.AnythingOfType("int64"), mock.AnythingOfType("*request.UpdateAuthorReq")).
+		mockAuthorUC.On("Update", mock.Anything, mock.AnythingOfType("int64"), mock.AnythingOfType("*request.UpdateAuthorReq")).
 			Return(errors.New("Unexpected Error")).Once()
 
 		e := echo.New()
@@ -364,19 +364,19 @@ func TestUpdate(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Update(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 }
 
-func TestDelete(t *testing.T) {
-	mockAuthorUsecase := new(mocks.AuthorUsecase)
+func TestAuthorHandler_Delete(t *testing.T) {
+	mockAuthorUC := new(mocks.AuthorUsecase)
 	mockAuthor := entity.Author{
 		ID:        1,
 		Name:      "name",
@@ -385,7 +385,7 @@ func TestDelete(t *testing.T) {
 	}
 
 	t.Run("success", func(t *testing.T) {
-		mockAuthorUsecase.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(nil).Once()
+		mockAuthorUC.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(nil).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.DELETE, "/api/v1/authors/"+strconv.Itoa(int(mockAuthor.ID)), strings.NewReader(""))
@@ -399,17 +399,17 @@ func TestDelete(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Delete(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("data-not-exist", func(t *testing.T) {
-		mockAuthorUsecase.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(sql.ErrNoRows).Once()
+		mockAuthorUC.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(sql.ErrNoRows).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.DELETE, "/api/v1/authors/"+strconv.Itoa(int(mockAuthor.ID)), strings.NewReader(""))
@@ -423,17 +423,17 @@ func TestDelete(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Delete(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusNotFound, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 
 	t.Run("error-usecase", func(t *testing.T) {
-		mockAuthorUsecase.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(errors.New("Unexpected Error")).Once()
+		mockAuthorUC.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(errors.New("Unexpected Error")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.DELETE, "/api/v1/authors/"+strconv.Itoa(int(mockAuthor.ID)), strings.NewReader(""))
@@ -447,12 +447,12 @@ func TestDelete(t *testing.T) {
 		c.SetParamValues(strconv.Itoa(int(mockAuthor.ID)))
 
 		handler := httpDelivery.AuthorHandler{
-			AuthorUsecase: mockAuthorUsecase,
+			AuthorUC: mockAuthorUC,
 		}
 		err = handler.Delete(c)
 
 		require.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		mockAuthorUsecase.AssertExpectations(t)
+		mockAuthorUC.AssertExpectations(t)
 	})
 }

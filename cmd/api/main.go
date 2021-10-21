@@ -24,11 +24,11 @@ func main() {
 	cacheInstance := datastore.NewCache(configApp.CacheURL)
 
 	// Setup repository
-	redisRepository := redisRepository.NewRedisRepository(cacheInstance)
-	authorRepository := pgsqlRepository.NewPgsqlAuthorRepository(dbInstance)
+	redisRepo := redisRepository.NewRedisRepository(cacheInstance)
+	authorRepo := pgsqlRepository.NewPgsqlAuthorRepository(dbInstance)
 
 	// Setup usecase
-	authorUsecase := usecase.NewAuthorUsecase(authorRepository, redisRepository)
+	authorUC := usecase.NewAuthorUsecase(authorRepo, redisRepo)
 
 	// Setup middleware manager
 	middManager := appMiddleware.NewMiddlewareManager()
@@ -45,8 +45,7 @@ func main() {
 		return c.String(http.StatusOK, "i am alive")
 	})
 
-	api := e.Group("/api/v1")
-	httpDelivery.NewAuthorHandler(api, authorUsecase)
+	httpDelivery.NewAuthorHandler(e, middManager, authorUC)
 
 	e.Logger.Fatal(e.Start(":" + configApp.ServerPORT))
 }
