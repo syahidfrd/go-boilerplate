@@ -21,6 +21,9 @@ build-api:
 test:
 	go test -v ./...
 
+mock:
+	mockery --all
+
 .PHONY:
 	migration-create
 	migration-up
@@ -28,3 +31,4 @@ test:
 	run-server
 	build-api
 	test
+	mock
