@@ -30,7 +30,7 @@ migrate create -ext sql -dir migration -seq name
 ```
 
 ### Test
-Run below command to run test, and make sure that all tests are passing.
+Run below command to run test, and make sure that all tests are passing
 ```
 go test -v ./...
 ```
