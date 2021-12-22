@@ -10,9 +10,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/syahidfrd/go-boilerplate/entity"
 	appMiddleware "github.com/syahidfrd/go-boilerplate/middleware"
+	"github.com/syahidfrd/go-boilerplate/mocks"
 )
 
-func TestGenerateCorrelationID(t *testing.T) {
+func TestGenerateCID(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
@@ -22,7 +23,8 @@ func TestGenerateCorrelationID(t *testing.T) {
 		return c.String(http.StatusOK, "test")
 	}
 
-	cid := appMiddleware.NewMiddlewareManager().GenerateCorrelationID()
+	mockLogger := new(mocks.Logger)
+	cid := appMiddleware.NewMiddlewareManager(mockLogger).GenerateCID()
 	h := cid(handler)
 	err := h(c)
 

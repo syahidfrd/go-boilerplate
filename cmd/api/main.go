@@ -12,12 +12,16 @@ import (
 	pgsqlRepository "github.com/syahidfrd/go-boilerplate/repository/pgsql"
 	redisRepository "github.com/syahidfrd/go-boilerplate/repository/redis"
 	"github.com/syahidfrd/go-boilerplate/usecase"
+	"github.com/syahidfrd/go-boilerplate/utils/logger"
 )
 
 func main() {
-
 	// Load config
 	configApp := config.LoadConfig()
+
+	// Setup logger
+	appLogger := logger.NewApiLogger(configApp)
+	appLogger.InitLogger()
 
 	// Setup infra
 	dbInstance := datastore.NewDatabase(configApp.DatabaseURL)
@@ -31,14 +35,16 @@ func main() {
 	authorUC := usecase.NewAuthorUsecase(authorRepo, redisRepo)
 
 	// Setup middleware manager
-	middManager := appMiddleware.NewMiddlewareManager()
+	middManager := appMiddleware.NewMiddlewareManager(appLogger)
 
 	// Setup route engine & middleware
 	e := echo.New()
 	e.Use(middleware.CORS())
-	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(middManager.GenerateCorrelationID())
+	e.Use(middManager.GenerateCID())
+	e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
+		middManager.InboundLog(c, reqBody, resBody)
+	}))
 
 	// Setup handler
 	e.GET("/", func(c echo.Context) error {
