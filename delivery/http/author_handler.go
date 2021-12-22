@@ -1,7 +1,6 @@
 package http
 
 import (
-	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -37,16 +36,16 @@ func (h *AuthorHandler) Create(c echo.Context) error {
 	var req request.CreateAuthorReq
 
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, utils.NewError(err))
+		return c.JSON(http.StatusUnprocessableEntity, utils.NewUnprocessableEntityError(err.Error()))
 	}
 
 	if err := req.Validate(); err != nil {
-		errValidations := err.(validation.Errors)
-		return c.JSON(http.StatusBadRequest, utils.NewValidationError(errValidations))
+		errVal := err.(validation.Errors)
+		return c.JSON(http.StatusBadRequest, utils.NewInvalidInputError(errVal))
 	}
 
 	if err := h.AuthorUC.Create(ctx, &req); err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return c.JSON(utils.ParseHttpError(err))
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -60,16 +59,12 @@ func (h *AuthorHandler) GetByID(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
+		return c.JSON(http.StatusNotFound, utils.NewNotFoundError("author not found"))
 	}
 
 	author, err := h.AuthorUC.GetByID(ctx, int64(id))
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
-		}
-
-		return c.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return c.JSON(utils.ParseHttpError(err))
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{"data": author})
@@ -81,7 +76,7 @@ func (h *AuthorHandler) Fetch(c echo.Context) error {
 
 	authors, err := h.AuthorUC.Fetch(ctx)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return c.JSON(utils.ParseHttpError(err))
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{"data": authors})
@@ -92,25 +87,21 @@ func (h *AuthorHandler) Update(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
+		return c.JSON(http.StatusNotFound, utils.NewNotFoundError("author not found"))
 	}
 
 	var req request.UpdateAuthorReq
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, utils.NewError(err))
+		return c.JSON(http.StatusUnprocessableEntity, utils.NewUnprocessableEntityError(err.Error()))
 	}
 
 	if err := req.Validate(); err != nil {
-		errValidations := err.(validation.Errors)
-		return c.JSON(http.StatusBadRequest, utils.NewValidationError(errValidations))
+		errVal := err.(validation.Errors)
+		return c.JSON(http.StatusBadRequest, utils.NewInvalidInputError(errVal))
 	}
 
 	if err := h.AuthorUC.Update(ctx, int64(id), &req); err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
-		}
-
-		return c.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return c.JSON(utils.ParseHttpError(err))
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -123,15 +114,11 @@ func (h *AuthorHandler) Delete(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
+		return c.JSON(http.StatusNotFound, utils.NewNotFoundError("author not found"))
 	}
 
 	if err := h.AuthorUC.Delete(ctx, int64(id)); err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusNotFound, utils.NewNotFoundError())
-		}
-
-		return c.JSON(http.StatusInternalServerError, utils.NewError(err))
+		return c.JSON(utils.ParseHttpError(err))
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/syahidfrd/go-boilerplate/repository/pgsql"
 	"github.com/syahidfrd/go-boilerplate/repository/redis"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
+	"github.com/syahidfrd/go-boilerplate/utils"
 )
 
 // AuthorUsecase represent the author's usecase contract
@@ -44,6 +46,10 @@ func (u *authorUsecase) Create(ctx context.Context, request *request.CreateAutho
 
 func (u *authorUsecase) GetByID(ctx context.Context, id int64) (author entity.Author, err error) {
 	author, err = u.authorRepo.GetByID(ctx, id)
+	if err != nil && err == sql.ErrNoRows {
+		err = utils.NewNotFoundError("author not found")
+		return
+	}
 	return
 }
 
@@ -66,7 +72,11 @@ func (u *authorUsecase) Fetch(ctx context.Context) (authors []entity.Author, err
 func (u *authorUsecase) Update(ctx context.Context, id int64, request *request.UpdateAuthorReq) (err error) {
 	author, err := u.authorRepo.GetByID(ctx, id)
 	if err != nil {
-		return err
+		if err == sql.ErrNoRows {
+			err = utils.NewNotFoundError("author not found")
+			return
+		}
+		return
 	}
 
 	author.Name = request.Name
@@ -79,6 +89,10 @@ func (u *authorUsecase) Update(ctx context.Context, id int64, request *request.U
 func (u *authorUsecase) Delete(ctx context.Context, id int64) (err error) {
 	_, err = u.authorRepo.GetByID(ctx, id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = utils.NewNotFoundError("author not found")
+			return
+		}
 		return
 	}
 

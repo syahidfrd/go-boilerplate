@@ -1,7 +1,6 @@
 package http_test
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -19,6 +18,7 @@ import (
 	"github.com/syahidfrd/go-boilerplate/entity"
 	"github.com/syahidfrd/go-boilerplate/mocks"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
+	"github.com/syahidfrd/go-boilerplate/utils"
 )
 
 func TestAuthorHandler_Create(t *testing.T) {
@@ -143,7 +143,7 @@ func TestAuthorHandler_GetByID(t *testing.T) {
 
 	t.Run("data-not-exist", func(t *testing.T) {
 		mockAuthorUC.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
-			Return(entity.Author{}, sql.ErrNoRows).Once()
+			Return(entity.Author{}, utils.NewNotFoundError("author not found")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.GET, "/api/v1/authors/"+strconv.Itoa(int(mockAuthor.ID)), strings.NewReader(""))
@@ -322,7 +322,7 @@ func TestAuthorHandler_Update(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockAuthorUC.On("Update", mock.Anything, mock.AnythingOfType("int64"), mock.AnythingOfType("*request.UpdateAuthorReq")).
-			Return(sql.ErrNoRows).Once()
+			Return(utils.NewNotFoundError("author not found")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.PUT, "/api/v1/authors/"+strconv.Itoa(int(mockAuthor.ID)), strings.NewReader(string(jsonReq)))
@@ -409,7 +409,7 @@ func TestAuthorHandler_Delete(t *testing.T) {
 	})
 
 	t.Run("data-not-exist", func(t *testing.T) {
-		mockAuthorUC.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(sql.ErrNoRows).Once()
+		mockAuthorUC.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(utils.NewNotFoundError("author not found")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.DELETE, "/api/v1/authors/"+strconv.Itoa(int(mockAuthor.ID)), strings.NewReader(""))
