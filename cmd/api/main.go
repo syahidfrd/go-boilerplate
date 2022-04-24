@@ -40,11 +40,9 @@ func main() {
 	// Setup route engine & middleware
 	e := echo.New()
 	e.Use(middleware.CORS())
-	e.Use(middleware.Recover())
 	e.Use(middManager.GenerateCID())
-	e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
-		middManager.InboundLog(c, reqBody, resBody)
-	}))
+	e.Use(middManager.InboundLog)
+	e.Use(middleware.Recover())
 
 	// Setup handler
 	e.GET("/", func(c echo.Context) error {
