@@ -3,8 +3,11 @@ package main
 import (
 	"net/http"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	_ "github.com/syahidfrd/go-boilerplate/docs"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"github.com/syahidfrd/go-boilerplate/config"
 	httpDelivery "github.com/syahidfrd/go-boilerplate/delivery/http"
 	"github.com/syahidfrd/go-boilerplate/infrastructure/datastore"
@@ -15,6 +18,9 @@ import (
 	"github.com/syahidfrd/go-boilerplate/utils/logger"
 )
 
+// @title Go Boilerplate
+// @version 1.0.4
+// @termsOfService http://swagger.io/terms/
 func main() {
 	// Load config
 	configApp := config.LoadConfig()
@@ -45,6 +51,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Setup handler
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "i am alive")
 	})

@@ -1,0 +1,111 @@
+definitions:
+  request.CreateAuthorReq:
+    properties:
+      name:
+        type: string
+    type: object
+  request.UpdateAuthorReq:
+    properties:
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+  termsOfService: http://swagger.io/terms/
+  title: Go Boilerplate
+  version: 1.0.4
+paths:
+  /api/v1/authors:
+    get:
+      consumes:
+      - application/json
+      description: Fetch Author
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Fetch Author
+      tags:
+      - Authors
+    post:
+      consumes:
+      - application/json
+      description: Create Author
+      parameters:
+      - description: Author to create
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateAuthorReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Create Author
+      tags:
+      - Authors
+  /api/v1/authors/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Author
+      parameters:
+      - description: author id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Delete Author
+      tags:
+      - Authors
+    get:
+      consumes:
+      - application/json
+      description: Get Author
+      parameters:
+      - description: author id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Get Author
+      tags:
+      - Authors
+    put:
+      consumes:
+      - application/json
+      description: Update Author
+      parameters:
+      - description: author id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Author to update
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateAuthorReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: Update Author
+      tags:
+      - Authors
+swagger: "2.0"

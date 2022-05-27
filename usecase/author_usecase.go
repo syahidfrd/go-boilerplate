@@ -65,7 +65,7 @@ func (u *authorUsecase) Fetch(ctx context.Context) (authors []entity.Author, err
 	}
 
 	authorsString, _ := json.Marshal(&authors)
-	u.redisRepo.Set("authors", authorsString, 60*time.Second)
+	u.redisRepo.Set("authors", authorsString, 30*time.Second)
 	return
 }
 

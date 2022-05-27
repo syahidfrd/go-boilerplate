@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	appMiddleware "github.com/syahidfrd/go-boilerplate/middleware"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
 	"github.com/syahidfrd/go-boilerplate/usecase"
@@ -30,7 +30,15 @@ func NewAuthorHandler(e *echo.Echo, middManager *appMiddleware.MiddlewareManager
 	apiV1.DELETE("/authors/:id", handler.Delete)
 }
 
-// Create will store the author by given request body
+// Create godoc
+// @Summary Create Author
+// @Description Create Author
+// @Tags Authors
+// @Accept json
+// @Produce json
+// @Param author body request.CreateAuthorReq true "Author to create"
+// @Success 200
+// @Router /api/v1/authors [post]
 func (h *AuthorHandler) Create(c echo.Context) error {
 	ctx := c.Request().Context()
 	var req request.CreateAuthorReq
@@ -54,7 +62,15 @@ func (h *AuthorHandler) Create(c echo.Context) error {
 
 }
 
-// GetByID will get author by given id
+// GetByID godoc
+// @Summary Get Author
+// @Description Get Author
+// @Tags Authors
+// @Accept json
+// @Produce json
+// @Param id path string true "author id"
+// @Success 200
+// @Router /api/v1/authors/{id} [get]
 func (h *AuthorHandler) GetByID(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
@@ -70,7 +86,14 @@ func (h *AuthorHandler) GetByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"data": author})
 }
 
-// Fetch will fetch the author
+// Fetch godoc
+// @Summary Fetch Author
+// @Description Fetch Author
+// @Tags Authors
+// @Accept json
+// @Produce json
+// @Success 200
+// @Router /api/v1/authors [get]
 func (h *AuthorHandler) Fetch(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -82,7 +105,16 @@ func (h *AuthorHandler) Fetch(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"data": authors})
 }
 
-// Update will get author by given request body
+// Update godoc
+// @Summary Update Author
+// @Description Update Author
+// @Tags Authors
+// @Accept json
+// @Produce json
+// @Param id path string true "author id"
+// @Param author body request.UpdateAuthorReq true "Author to update"
+// @Success 200
+// @Router /api/v1/authors/{id} [put]
 func (h *AuthorHandler) Update(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
@@ -109,7 +141,15 @@ func (h *AuthorHandler) Update(c echo.Context) error {
 	})
 }
 
-// Delete will delete author by given param
+// Delete godoc
+// @Summary Delete Author
+// @Description Delete Author
+// @Tags Authors
+// @Accept json
+// @Produce json
+// @Param id path string true "author id"
+// @Success 200
+// @Router /api/v1/authors/{id} [delete]
 func (h *AuthorHandler) Delete(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
