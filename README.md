@@ -12,7 +12,7 @@ https://github.com/golang-migrate/migrate
 App requires 2 database (postgreSQL and redis server), run from your local machine or run it using docker with the following command
 ```
 # run postgreSQL
-docker run -d -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=go-boilerplate postgres
+docker run -d -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=go_boilerplate postgres
 
 # run redis
 docker run -d -p 6379:6379 redis
@@ -39,6 +39,11 @@ go test -v ./...
 Run below command to run app
 ```
 go run ./cmd/api/main.go
+```
+
+Swagger URL
+```
+${BASE_URL}/swagger/index.html
 ```
 
 You can find usefull commands in `Makefile`.
