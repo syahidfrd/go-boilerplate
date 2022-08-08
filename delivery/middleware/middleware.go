@@ -7,7 +7,7 @@ type Middleware struct {
 	logger logger.Logger
 }
 
-// NewMiddlewareManager will create new an MiddlewareManager object
+// NewMiddleware will create new an Middleware object
 func NewMiddleware(logger logger.Logger) *Middleware {
 	return &Middleware{
 		logger: logger,

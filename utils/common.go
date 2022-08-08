@@ -22,7 +22,7 @@ func CompactJSON(data []byte) string {
 	return result.String()
 }
 
-// Get request id from echo context
+// GetReqID get request id from echo context
 func GetReqID(ctx context.Context) string {
 	if ctx == nil {
 		return ""
