@@ -171,3 +171,10 @@ func ParseHttpError(err error) (int, interface{}) {
 	}
 	return http.StatusInternalServerError, NewInternalServerError(err)
 }
+
+// PanicIfNeeded is panic if needed
+func PanicIfNeeded(err interface{}) {
+	if err != nil {
+		panic(err)
+	}
+}

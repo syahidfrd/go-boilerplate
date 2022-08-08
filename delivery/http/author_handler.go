@@ -6,7 +6,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo/v4"
-	appMiddleware "github.com/syahidfrd/go-boilerplate/middleware"
+	"github.com/syahidfrd/go-boilerplate/delivery/middleware"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
 	"github.com/syahidfrd/go-boilerplate/usecase"
 	"github.com/syahidfrd/go-boilerplate/utils"
@@ -17,7 +17,7 @@ type AuthorHandler struct {
 }
 
 // NewAuthorHandler will initialize the authors/ resources endpoint
-func NewAuthorHandler(e *echo.Echo, middManager *appMiddleware.MiddlewareManager, authorUC usecase.AuthorUsecase) {
+func NewAuthorHandler(e *echo.Echo, middleware *middleware.Middleware, authorUC usecase.AuthorUsecase) {
 	handler := &AuthorHandler{
 		AuthorUC: authorUC,
 	}

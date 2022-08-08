@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	appMiddleware "github.com/syahidfrd/go-boilerplate/delivery/middleware"
 	"github.com/syahidfrd/go-boilerplate/entity"
-	appMiddleware "github.com/syahidfrd/go-boilerplate/middleware"
 	"github.com/syahidfrd/go-boilerplate/mocks"
 )
 
@@ -24,10 +24,10 @@ func TestGenerateCID(t *testing.T) {
 	}
 
 	mockLogger := new(mocks.Logger)
-	cid := appMiddleware.NewMiddlewareManager(mockLogger).GenerateCID()
+	cid := appMiddleware.NewMiddleware(mockLogger).RequestID()
 	h := cid(handler)
 	err := h(c)
 
 	require.NoError(t, err)
-	assert.NotNil(t, rec.Header().Get(entity.HeaderXCorrelationID))
+	assert.NotNil(t, rec.Header().Get(entity.RequestIDHeader))
 }

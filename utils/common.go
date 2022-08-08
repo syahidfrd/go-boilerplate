@@ -23,7 +23,12 @@ func CompactJSON(data []byte) string {
 }
 
 // Get request id from echo context
-func GetCID(ctx context.Context) (cid string) {
-	cid = ctx.Value(entity.CorrelationContextKey).(string)
-	return
+func GetReqID(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+	if reqID, ok := ctx.Value(entity.RequestIDKey).(string); ok {
+		return reqID
+	}
+	return ""
 }

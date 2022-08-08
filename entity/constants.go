@@ -1,8 +1,7 @@
 package entity
 
-type ContextKey string
+type ctxKeyRequestID int
 
-const (
-	HeaderXCorrelationID  string     = "X-Correlation-ID"
-	CorrelationContextKey ContextKey = "cid"
-)
+const RequestIDKey ctxKeyRequestID = 0
+
+var RequestIDHeader = "X-Request-Id"
