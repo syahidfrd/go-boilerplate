@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	_ "github.com/syahidfrd/go-boilerplate/docs"
 
@@ -38,7 +39,8 @@ func main() {
 	authorRepo := pgsqlRepository.NewPgsqlAuthorRepository(dbInstance)
 
 	// Setup usecase
-	authorUC := usecase.NewAuthorUsecase(authorRepo, redisRepo)
+	ctxTimeout := time.Duration(configApp.ContextTimeout) * time.Second
+	authorUC := usecase.NewAuthorUsecase(authorRepo, redisRepo, ctxTimeout)
 
 	// Setup middleware manager
 	middManager := appMiddleware.NewMiddlewareManager(appLogger)

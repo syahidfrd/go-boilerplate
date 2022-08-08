@@ -16,6 +16,8 @@ import (
 	"github.com/syahidfrd/go-boilerplate/usecase"
 )
 
+var ctxTimeout = 60 * time.Second
+
 func TestAuthorUC_Create(t *testing.T) {
 	mockRedisRepo := new(mocks.RedisRepository)
 	mockAuthorRepo := new(mocks.AuthorRepository)
@@ -26,7 +28,7 @@ func TestAuthorUC_Create(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockAuthorRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		err := authorUsecase.Create(context.TODO(), &createAuthorReq)
 
 		assert.NoError(t, err)
@@ -37,7 +39,7 @@ func TestAuthorUC_Create(t *testing.T) {
 	t.Run("error-db", func(t *testing.T) {
 		mockAuthorRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(errors.New("Unexpected Error")).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		err := authorUsecase.Create(context.TODO(), &createAuthorReq)
 
 		assert.NotNil(t, err)
@@ -59,7 +61,7 @@ func TestAuthorUC_GetByID(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		author, err := authorUsecase.GetByID(context.TODO(), mockAuthor.ID)
 
 		assert.NoError(t, err)
@@ -72,7 +74,7 @@ func TestAuthorUC_GetByID(t *testing.T) {
 	t.Run("author-not-exist", func(t *testing.T) {
 		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, sql.ErrNoRows).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		author, err := authorUsecase.GetByID(context.TODO(), mockAuthor.ID)
 
 		assert.NotNil(t, err)
@@ -84,7 +86,7 @@ func TestAuthorUC_GetByID(t *testing.T) {
 	t.Run("error-db", func(t *testing.T) {
 		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, errors.New("Unexpected Error")).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		author, err := authorUsecase.GetByID(context.TODO(), mockAuthor.ID)
 
 		assert.NotNil(t, err)
@@ -112,7 +114,7 @@ func TestAuthorUC_Fetch(t *testing.T) {
 		mockAuthorRepo.On("Fetch", mock.Anything).Return(mockListAuthor, nil).Once()
 		mockRedisRepo.On("Set", mock.AnythingOfType("string"), mock.AnythingOfType("[]uint8"), mock.AnythingOfType("time.Duration")).Return(nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		authors, err := authorUsecase.Fetch(context.TODO())
 
 		assert.NoError(t, err)
@@ -125,7 +127,7 @@ func TestAuthorUC_Fetch(t *testing.T) {
 		mockListAuthorByte, _ := json.Marshal(mockListAuthor)
 		mockRedisRepo.On("Get", mock.AnythingOfType("string")).Return(string(mockListAuthorByte), nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		authors, err := authorUsecase.Fetch(context.TODO())
 
 		assert.NoError(t, err)
@@ -139,7 +141,7 @@ func TestAuthorUC_Fetch(t *testing.T) {
 		mockRedisRepo.On("Get", mock.AnythingOfType("string")).Return("", errors.New("Unexpected Error")).Once()
 		mockAuthorRepo.On("Fetch", mock.Anything).Return([]entity.Author{}, errors.New("Unexpected Error")).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		authors, err := authorUsecase.Fetch(context.TODO())
 
 		assert.NotNil(t, err)
@@ -166,7 +168,7 @@ func TestAuthorUC_Update(t *testing.T) {
 		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
 		mockAuthorRepo.On("Update", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(nil).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		err := authorUsecase.Update(context.TODO(), mockAuthor.ID, &updateAuthorReq)
 
 		assert.NoError(t, err)
@@ -177,7 +179,7 @@ func TestAuthorUC_Update(t *testing.T) {
 	t.Run("author-not-exist", func(t *testing.T) {
 		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, sql.ErrNoRows).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		err := authorUsecase.Update(context.TODO(), mockAuthor.ID, &updateAuthorReq)
 
 		assert.NotNil(t, err)
@@ -189,7 +191,7 @@ func TestAuthorUC_Update(t *testing.T) {
 		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
 		mockAuthorRepo.On("Update", mock.Anything, mock.AnythingOfType("*entity.Author")).Return(errors.New("Unexpected Error")).Once()
 
-		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorUsecase := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		err := authorUsecase.Update(context.TODO(), mockAuthor.ID, &updateAuthorReq)
 
 		assert.NotNil(t, err)
@@ -212,7 +214,7 @@ func TestAuthorUC_Delete(t *testing.T) {
 		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
 		mockAuthorRepo.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(nil).Once()
 
-		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		err := authorRepository.Delete(context.TODO(), mockAuthor.ID)
 
 		assert.NoError(t, err)
@@ -223,7 +225,7 @@ func TestAuthorUC_Delete(t *testing.T) {
 	t.Run("author-not-exist", func(t *testing.T) {
 		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Author{}, sql.ErrNoRows).Once()
 
-		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		err := authorRepository.Delete(context.TODO(), mockAuthor.ID)
 
 		assert.NotNil(t, err)
@@ -235,7 +237,7 @@ func TestAuthorUC_Delete(t *testing.T) {
 		mockAuthorRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockAuthor, nil).Once()
 		mockAuthorRepo.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(errors.New("Unexpected Error")).Once()
 
-		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo)
+		authorRepository := usecase.NewAuthorUsecase(mockAuthorRepo, mockRedisRepo, ctxTimeout)
 		err := authorRepository.Delete(context.TODO(), mockAuthor.ID)
 
 		assert.NotNil(t, err)

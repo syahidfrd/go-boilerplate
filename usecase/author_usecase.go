@@ -25,17 +25,22 @@ type AuthorUsecase interface {
 type authorUsecase struct {
 	authorRepo pgsql.AuthorRepository
 	redisRepo  redis.RedisRepository
+	ctxTimeout time.Duration
 }
 
 // NewAuthorUsecase will create new an authorUsecase object representation of AuthorUsecase interface
-func NewAuthorUsecase(authorRepo pgsql.AuthorRepository, redisRepo redis.RedisRepository) AuthorUsecase {
+func NewAuthorUsecase(authorRepo pgsql.AuthorRepository, redisRepo redis.RedisRepository, ctxTimeout time.Duration) AuthorUsecase {
 	return &authorUsecase{
 		authorRepo: authorRepo,
 		redisRepo:  redisRepo,
+		ctxTimeout: ctxTimeout,
 	}
 }
 
-func (u *authorUsecase) Create(ctx context.Context, request *request.CreateAuthorReq) (err error) {
+func (u *authorUsecase) Create(c context.Context, request *request.CreateAuthorReq) (err error) {
+	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
+	defer cancel()
+
 	err = u.authorRepo.Create(ctx, &entity.Author{
 		Name:      request.Name,
 		CreatedAt: time.Now(),
@@ -44,7 +49,10 @@ func (u *authorUsecase) Create(ctx context.Context, request *request.CreateAutho
 	return
 }
 
-func (u *authorUsecase) GetByID(ctx context.Context, id int64) (author entity.Author, err error) {
+func (u *authorUsecase) GetByID(c context.Context, id int64) (author entity.Author, err error) {
+	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
+	defer cancel()
+
 	author, err = u.authorRepo.GetByID(ctx, id)
 	if err != nil && err == sql.ErrNoRows {
 		err = utils.NewNotFoundError("author not found")
@@ -53,7 +61,10 @@ func (u *authorUsecase) GetByID(ctx context.Context, id int64) (author entity.Au
 	return
 }
 
-func (u *authorUsecase) Fetch(ctx context.Context) (authors []entity.Author, err error) {
+func (u *authorUsecase) Fetch(c context.Context) (authors []entity.Author, err error) {
+	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
+	defer cancel()
+
 	authorsCached, _ := u.redisRepo.Get("authors")
 	if err = json.Unmarshal([]byte(authorsCached), &authors); err == nil {
 		return
@@ -69,7 +80,10 @@ func (u *authorUsecase) Fetch(ctx context.Context) (authors []entity.Author, err
 	return
 }
 
-func (u *authorUsecase) Update(ctx context.Context, id int64, request *request.UpdateAuthorReq) (err error) {
+func (u *authorUsecase) Update(c context.Context, id int64, request *request.UpdateAuthorReq) (err error) {
+	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
+	defer cancel()
+
 	author, err := u.authorRepo.GetByID(ctx, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -86,7 +100,10 @@ func (u *authorUsecase) Update(ctx context.Context, id int64, request *request.U
 	return
 }
 
-func (u *authorUsecase) Delete(ctx context.Context, id int64) (err error) {
+func (u *authorUsecase) Delete(c context.Context, id int64) (err error) {
+	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
+	defer cancel()
+
 	_, err = u.authorRepo.GetByID(ctx, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
