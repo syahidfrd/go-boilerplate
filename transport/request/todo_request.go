@@ -2,24 +2,24 @@ package request
 
 import validation "github.com/go-ozzo/ozzo-validation"
 
-// CreateAuthorReq represent create author request body
-type CreateAuthorReq struct {
+// CreateTodoReq represent create todo request body
+type CreateTodoReq struct {
 	Name string `json:"name"`
 }
 
-func (request CreateAuthorReq) Validate() error {
+func (request CreateTodoReq) Validate() error {
 	return validation.ValidateStruct(
 		&request,
 		validation.Field(&request.Name, validation.Required),
 	)
 }
 
-// UpdateAuthorReq represent update author request body
-type UpdateAuthorReq struct {
+// UpdateTodoReq represent update todo request body
+type UpdateTodoReq struct {
 	Name string `json:"name"`
 }
 
-func (request UpdateAuthorReq) Validate() error {
+func (request UpdateTodoReq) Validate() error {
 	return validation.ValidateStruct(
 		&request,
 		validation.Field(&request.Name, validation.Required),

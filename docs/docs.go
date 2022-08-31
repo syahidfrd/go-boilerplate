@@ -17,9 +17,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/authors": {
+        "/api/v1/todos": {
             "get": {
-                "description": "Fetch Author",
+                "description": "Fetch Todo",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,9 +27,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Authors"
+                    "Todos"
                 ],
-                "summary": "Fetch Author",
+                "summary": "Fetch Todo",
                 "responses": {
                     "200": {
                         "description": ""
@@ -37,7 +37,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create Author",
+                "description": "Create Todo",
                 "consumes": [
                     "application/json"
                 ],
@@ -45,17 +45,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Authors"
+                    "Todos"
                 ],
-                "summary": "Create Author",
+                "summary": "Create Todo",
                 "parameters": [
                     {
-                        "description": "Author to create",
-                        "name": "author",
+                        "description": "Todo to create",
+                        "name": "todo",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.CreateAuthorReq"
+                            "$ref": "#/definitions/request.CreateTodoReq"
                         }
                     }
                 ],
@@ -66,9 +66,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/authors/{id}": {
+        "/api/v1/todos/{id}": {
             "get": {
-                "description": "Get Author",
+                "description": "Get Todo",
                 "consumes": [
                     "application/json"
                 ],
@@ -76,13 +76,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Authors"
+                    "Todos"
                 ],
-                "summary": "Get Author",
+                "summary": "Get Todo",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "author id",
+                        "description": "todo id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -95,7 +95,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update Author",
+                "description": "Update Todo",
                 "consumes": [
                     "application/json"
                 ],
@@ -103,24 +103,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Authors"
+                    "Todos"
                 ],
-                "summary": "Update Author",
+                "summary": "Update Todo",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "author id",
+                        "description": "todo id",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Author to update",
-                        "name": "author",
+                        "description": "Todo to update",
+                        "name": "todo",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.UpdateAuthorReq"
+                            "$ref": "#/definitions/request.UpdateTodoReq"
                         }
                     }
                 ],
@@ -131,7 +131,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete Author",
+                "description": "Delete Todo",
                 "consumes": [
                     "application/json"
                 ],
@@ -139,13 +139,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Authors"
+                    "Todos"
                 ],
-                "summary": "Delete Author",
+                "summary": "Delete Todo",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "author id",
+                        "description": "todo id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -160,7 +160,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "request.CreateAuthorReq": {
+        "request.CreateTodoReq": {
             "type": "object",
             "properties": {
                 "name": {
@@ -168,7 +168,7 @@ const docTemplate = `{
                 }
             }
         },
-        "request.UpdateAuthorReq": {
+        "request.UpdateTodoReq": {
             "type": "object",
             "properties": {
                 "name": {

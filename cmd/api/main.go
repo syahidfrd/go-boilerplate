@@ -40,11 +40,11 @@ func main() {
 
 	// Setup repository
 	redisRepo := redisRepository.NewRedisRepository(cacheInstance)
-	authorRepo := pgsqlRepository.NewPgsqlAuthorRepository(dbInstance)
+	todoRepo := pgsqlRepository.NewPgsqlTodoRepository(dbInstance)
 
 	// Setup usecase
 	ctxTimeout := time.Duration(configApp.ContextTimeout) * time.Second
-	authorUC := usecase.NewAuthorUsecase(authorRepo, redisRepo, ctxTimeout)
+	todoUC := usecase.NewTodoUsecase(todoRepo, redisRepo, ctxTimeout)
 
 	// Setup app middleware
 	appMiddleware := appMiddleware.NewMiddleware(appLogger)
@@ -62,7 +62,7 @@ func main() {
 		return c.String(http.StatusOK, "i am alive")
 	})
 
-	httpDelivery.NewAuthorHandler(e, appMiddleware, authorUC)
+	httpDelivery.NewTodoHandler(e, appMiddleware, todoUC)
 
 	e.Logger.Fatal(e.Start(":" + configApp.ServerPORT))
 }

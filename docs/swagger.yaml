@@ -1,10 +1,10 @@
 definitions:
-  request.CreateAuthorReq:
+  request.CreateTodoReq:
     properties:
       name:
         type: string
     type: object
-  request.UpdateAuthorReq:
+  request.UpdateTodoReq:
     properties:
       name:
         type: string
@@ -15,45 +15,45 @@ info:
   title: Go Boilerplate
   version: 1.0.4
 paths:
-  /api/v1/authors:
+  /api/v1/todos:
     get:
       consumes:
       - application/json
-      description: Fetch Author
+      description: Fetch Todo
       produces:
       - application/json
       responses:
         "200":
           description: ""
-      summary: Fetch Author
+      summary: Fetch Todo
       tags:
-      - Authors
+      - Todos
     post:
       consumes:
       - application/json
-      description: Create Author
+      description: Create Todo
       parameters:
-      - description: Author to create
+      - description: Todo to create
         in: body
-        name: author
+        name: todo
         required: true
         schema:
-          $ref: '#/definitions/request.CreateAuthorReq'
+          $ref: '#/definitions/request.CreateTodoReq'
       produces:
       - application/json
       responses:
         "200":
           description: ""
-      summary: Create Author
+      summary: Create Todo
       tags:
-      - Authors
-  /api/v1/authors/{id}:
+      - Todos
+  /api/v1/todos/{id}:
     delete:
       consumes:
       - application/json
-      description: Delete Author
+      description: Delete Todo
       parameters:
-      - description: author id
+      - description: todo id
         in: path
         name: id
         required: true
@@ -63,15 +63,15 @@ paths:
       responses:
         "200":
           description: ""
-      summary: Delete Author
+      summary: Delete Todo
       tags:
-      - Authors
+      - Todos
     get:
       consumes:
       - application/json
-      description: Get Author
+      description: Get Todo
       parameters:
-      - description: author id
+      - description: todo id
         in: path
         name: id
         required: true
@@ -81,31 +81,31 @@ paths:
       responses:
         "200":
           description: ""
-      summary: Get Author
+      summary: Get Todo
       tags:
-      - Authors
+      - Todos
     put:
       consumes:
       - application/json
-      description: Update Author
+      description: Update Todo
       parameters:
-      - description: author id
+      - description: todo id
         in: path
         name: id
         required: true
         type: string
-      - description: Author to update
+      - description: Todo to update
         in: body
-        name: author
+        name: todo
         required: true
         schema:
-          $ref: '#/definitions/request.UpdateAuthorReq'
+          $ref: '#/definitions/request.UpdateTodoReq'
       produces:
       - application/json
       responses:
         "200":
           description: ""
-      summary: Update Author
+      summary: Update Todo
       tags:
-      - Authors
+      - Todos
 swagger: "2.0"
