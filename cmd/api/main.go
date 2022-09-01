@@ -55,7 +55,7 @@ func main() {
 	authUC := usecase.NewAuthUsecase(userRepo, cryptoSvc, jwtSvc, ctxTimeout)
 
 	// Setup app middleware
-	appMiddleware := appMiddleware.NewMiddleware(appLogger)
+	appMiddleware := appMiddleware.NewMiddleware(jwtSvc, appLogger)
 
 	// Setup route engine & middleware
 	e := echo.New()

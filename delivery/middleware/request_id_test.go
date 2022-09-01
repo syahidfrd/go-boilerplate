@@ -24,7 +24,8 @@ func TestGenerateCID(t *testing.T) {
 	}
 
 	mockLogger := new(mocks.Logger)
-	cid := appMiddleware.NewMiddleware(mockLogger).RequestID()
+	mockJWTSvc := new(mocks.JWTService)
+	cid := appMiddleware.NewMiddleware(mockJWTSvc, mockLogger).RequestID()
 	h := cid(handler)
 	err := h(c)
 

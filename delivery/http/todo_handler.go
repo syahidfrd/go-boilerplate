@@ -23,11 +23,11 @@ func NewTodoHandler(e *echo.Echo, middleware *middleware.Middleware, todoUC usec
 	}
 
 	apiV1 := e.Group("/api/v1")
-	apiV1.POST("/todos", handler.Create)
-	apiV1.GET("/todos/:id", handler.GetByID)
-	apiV1.GET("/todos", handler.Fetch)
-	apiV1.PUT("/todos/:id", handler.Update)
-	apiV1.DELETE("/todos/:id", handler.Delete)
+	apiV1.POST("/todos", handler.Create, middleware.JWTAuth())
+	apiV1.GET("/todos/:id", handler.GetByID, middleware.JWTAuth())
+	apiV1.GET("/todos", handler.Fetch, middleware.JWTAuth())
+	apiV1.PUT("/todos/:id", handler.Update, middleware.JWTAuth())
+	apiV1.DELETE("/todos/:id", handler.Delete, middleware.JWTAuth())
 }
 
 // Create godoc
