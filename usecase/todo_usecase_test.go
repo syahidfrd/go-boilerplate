@@ -16,8 +16,6 @@ import (
 	"github.com/syahidfrd/go-boilerplate/usecase"
 )
 
-var ctxTimeout = 60 * time.Second
-
 func TestTodoUC_Create(t *testing.T) {
 	mockRedisRepo := new(mocks.RedisRepository)
 	mockTodoRepo := new(mocks.TodoRepository)
@@ -28,7 +26,7 @@ func TestTodoUC_Create(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockTodoRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.Todo")).Return(nil).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		err := todoUsecase.Create(context.TODO(), &createTodoReq)
 
 		assert.NoError(t, err)
@@ -39,7 +37,7 @@ func TestTodoUC_Create(t *testing.T) {
 	t.Run("error-db", func(t *testing.T) {
 		mockTodoRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.Todo")).Return(errors.New("Unexpected Error")).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		err := todoUsecase.Create(context.TODO(), &createTodoReq)
 
 		assert.NotNil(t, err)
@@ -61,7 +59,7 @@ func TestTodoUC_GetByID(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockTodo, nil).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		todo, err := todoUsecase.GetByID(context.TODO(), mockTodo.ID)
 
 		assert.NoError(t, err)
@@ -74,7 +72,7 @@ func TestTodoUC_GetByID(t *testing.T) {
 	t.Run("todo-not-exist", func(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Todo{}, sql.ErrNoRows).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		todo, err := todoUsecase.GetByID(context.TODO(), mockTodo.ID)
 
 		assert.NotNil(t, err)
@@ -86,7 +84,7 @@ func TestTodoUC_GetByID(t *testing.T) {
 	t.Run("error-db", func(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Todo{}, errors.New("Unexpected Error")).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		todo, err := todoUsecase.GetByID(context.TODO(), mockTodo.ID)
 
 		assert.NotNil(t, err)
@@ -114,7 +112,7 @@ func TestTooUC_Fetch(t *testing.T) {
 		mockTodoRepo.On("Fetch", mock.Anything).Return(mockListTodo, nil).Once()
 		mockRedisRepo.On("Set", mock.AnythingOfType("string"), mock.AnythingOfType("[]uint8"), mock.AnythingOfType("time.Duration")).Return(nil).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		todos, err := todoUsecase.Fetch(context.TODO())
 
 		assert.NoError(t, err)
@@ -127,7 +125,7 @@ func TestTooUC_Fetch(t *testing.T) {
 		mockListTodoByte, _ := json.Marshal(mockListTodo)
 		mockRedisRepo.On("Get", mock.AnythingOfType("string")).Return(string(mockListTodoByte), nil).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		todos, err := todoUsecase.Fetch(context.TODO())
 
 		assert.NoError(t, err)
@@ -141,7 +139,7 @@ func TestTooUC_Fetch(t *testing.T) {
 		mockRedisRepo.On("Get", mock.AnythingOfType("string")).Return("", errors.New("Unexpected Error")).Once()
 		mockTodoRepo.On("Fetch", mock.Anything).Return([]entity.Todo{}, errors.New("Unexpected Error")).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		todos, err := todoUsecase.Fetch(context.TODO())
 
 		assert.NotNil(t, err)
@@ -168,7 +166,7 @@ func TestTodoUC_Update(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockTodo, nil).Once()
 		mockTodoRepo.On("Update", mock.Anything, mock.AnythingOfType("*entity.Todo")).Return(nil).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		err := todoUsecase.Update(context.TODO(), mockTodo.ID, &updateTodoReq)
 
 		assert.NoError(t, err)
@@ -179,7 +177,7 @@ func TestTodoUC_Update(t *testing.T) {
 	t.Run("todo-not-exist", func(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Todo{}, sql.ErrNoRows).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		err := todoUsecase.Update(context.TODO(), mockTodo.ID, &updateTodoReq)
 
 		assert.NotNil(t, err)
@@ -191,7 +189,7 @@ func TestTodoUC_Update(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockTodo, nil).Once()
 		mockTodoRepo.On("Update", mock.Anything, mock.AnythingOfType("*entity.Todo")).Return(errors.New("Unexpected Error")).Once()
 
-		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoUsecase := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		err := todoUsecase.Update(context.TODO(), mockTodo.ID, &updateTodoReq)
 
 		assert.NotNil(t, err)
@@ -214,7 +212,7 @@ func TestTodoUC_Delete(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockTodo, nil).Once()
 		mockTodoRepo.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(nil).Once()
 
-		todoRepository := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoRepository := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		err := todoRepository.Delete(context.TODO(), mockTodo.ID)
 
 		assert.NoError(t, err)
@@ -225,7 +223,7 @@ func TestTodoUC_Delete(t *testing.T) {
 	t.Run("todo-not-exist", func(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(entity.Todo{}, sql.ErrNoRows).Once()
 
-		todoRepository := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoRepository := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		err := todoRepository.Delete(context.TODO(), mockTodo.ID)
 
 		assert.NotNil(t, err)
@@ -237,7 +235,7 @@ func TestTodoUC_Delete(t *testing.T) {
 		mockTodoRepo.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).Return(mockTodo, nil).Once()
 		mockTodoRepo.On("Delete", mock.Anything, mock.AnythingOfType("int64")).Return(errors.New("Unexpected Error")).Once()
 
-		todoRepository := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, ctxTimeout)
+		todoRepository := usecase.NewTodoUsecase(mockTodoRepo, mockRedisRepo, 60*time.Second)
 		err := todoRepository.Delete(context.TODO(), mockTodo.ID)
 
 		assert.NotNil(t, err)

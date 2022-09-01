@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/syahidfrd/go-boilerplate/utils/crypto"
+	"github.com/syahidfrd/go-boilerplate/utils/jwt"
 	"net/http"
 	"time"
 
@@ -41,10 +43,16 @@ func main() {
 	// Setup repository
 	redisRepo := redisRepository.NewRedisRepository(cacheInstance)
 	todoRepo := pgsqlRepository.NewPgsqlTodoRepository(dbInstance)
+	userRepo := pgsqlRepository.NewPgsqlUserRepository(dbInstance)
+
+	// Setup Service
+	cryptoSvc := crypto.NewCryptoService()
+	jwtSvc := jwt.NewJWTService(configApp.JWTSecretKey)
 
 	// Setup usecase
 	ctxTimeout := time.Duration(configApp.ContextTimeout) * time.Second
 	todoUC := usecase.NewTodoUsecase(todoRepo, redisRepo, ctxTimeout)
+	authUC := usecase.NewAuthUsecase(userRepo, cryptoSvc, jwtSvc, ctxTimeout)
 
 	// Setup app middleware
 	appMiddleware := appMiddleware.NewMiddleware(appLogger)
@@ -63,6 +71,7 @@ func main() {
 	})
 
 	httpDelivery.NewTodoHandler(e, appMiddleware, todoUC)
+	httpDelivery.NewAuthHandler(e, appMiddleware, authUC)
 
 	e.Logger.Fatal(e.Start(":" + configApp.ServerPORT))
 }

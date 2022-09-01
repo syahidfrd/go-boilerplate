@@ -4,6 +4,20 @@ definitions:
       name:
         type: string
     type: object
+  request.SignInReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  request.SignUpReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   request.UpdateTodoReq:
     properties:
       name:
@@ -15,6 +29,46 @@ info:
   title: Go Boilerplate
   version: 1.0.4
 paths:
+  /api/v1/auth/signin:
+    post:
+      consumes:
+      - application/json
+      description: SignIn
+      parameters:
+      - description: SignIn user
+        in: body
+        name: signin
+        required: true
+        schema:
+          $ref: '#/definitions/request.SignInReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: SignIn
+      tags:
+      - Auth
+  /api/v1/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: SignUp
+      parameters:
+      - description: SignUp user
+        in: body
+        name: signup
+        required: true
+        schema:
+          $ref: '#/definitions/request.SignUpReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      summary: SignUp
+      tags:
+      - Auth
   /api/v1/todos:
     get:
       consumes:

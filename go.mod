@@ -10,6 +10,7 @@ require (
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gomodule/redigo v1.8.5 // indirect
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo/v4 v4.7.2
@@ -24,7 +25,7 @@ require (
 	github.com/swaggo/swag v1.8.2
 	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9 // indirect
 	go.uber.org/zap v1.19.1
-	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
 	golang.org/x/net v0.0.0-20220526153639-5463443f8c37 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
 )

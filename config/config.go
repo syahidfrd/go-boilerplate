@@ -14,6 +14,7 @@ type Config struct {
 	CacheURL       string
 	LoggerLevel    string
 	ContextTimeout int
+	JWTSecretKey   string
 }
 
 // LoadConfig will load config from environment variable
@@ -27,6 +28,7 @@ func LoadConfig() (config *Config) {
 	cacheURL := os.Getenv("CACHE_URL")
 	loggerLevel := os.Getenv("LOGGER_LEVEL")
 	contextTimeout, _ := strconv.Atoi(os.Getenv("CONTEXT_TIMEOUT"))
+	jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
 
 	return &Config{
 		ServerPORT:     serverPORT,
@@ -34,5 +36,6 @@ func LoadConfig() (config *Config) {
 		CacheURL:       cacheURL,
 		LoggerLevel:    loggerLevel,
 		ContextTimeout: contextTimeout,
+		JWTSecretKey:   jwtSecretKey,
 	}
 }
