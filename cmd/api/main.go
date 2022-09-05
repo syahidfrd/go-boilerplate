@@ -25,6 +25,9 @@ import (
 // @title Go Boilerplate
 // @version 1.0.4
 // @termsOfService http://swagger.io/terms/
+// @securityDefinitions.apikey JwtToken
+// @in header
+// @name Authorization
 func main() {
 	// Load config
 	configApp := config.LoadConfig()

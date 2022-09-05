@@ -71,6 +71,11 @@
         },
         "/api/v1/todos": {
             "get": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Fetch Todo",
                 "consumes": [
                     "application/json"
@@ -89,6 +94,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Create Todo",
                 "consumes": [
                     "application/json"
@@ -120,6 +130,11 @@
         },
         "/api/v1/todos/{id}": {
             "get": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Get Todo",
                 "consumes": [
                     "application/json"
@@ -147,6 +162,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Update Todo",
                 "consumes": [
                     "application/json"
@@ -183,6 +203,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Delete Todo",
                 "consumes": [
                     "application/json"
@@ -249,6 +274,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "JwtToken": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

@@ -81,6 +81,11 @@ const docTemplate = `{
         },
         "/api/v1/todos": {
             "get": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Fetch Todo",
                 "consumes": [
                     "application/json"
@@ -99,6 +104,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Create Todo",
                 "consumes": [
                     "application/json"
@@ -130,6 +140,11 @@ const docTemplate = `{
         },
         "/api/v1/todos/{id}": {
             "get": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Get Todo",
                 "consumes": [
                     "application/json"
@@ -157,6 +172,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Update Todo",
                 "consumes": [
                     "application/json"
@@ -193,6 +213,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "JwtToken": []
+                    }
+                ],
                 "description": "Delete Todo",
                 "consumes": [
                     "application/json"
@@ -259,6 +284,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "JwtToken": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

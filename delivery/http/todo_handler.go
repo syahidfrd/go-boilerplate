@@ -39,6 +39,7 @@ func NewTodoHandler(e *echo.Echo, middleware *middleware.Middleware, todoUC usec
 // @Param todo body request.CreateTodoReq true "Todo to create"
 // @Success 200
 // @Router /api/v1/todos [post]
+// @Security JwtToken
 func (h *TodoHandler) Create(c echo.Context) error {
 	ctx := c.Request().Context()
 	var req request.CreateTodoReq
@@ -71,6 +72,7 @@ func (h *TodoHandler) Create(c echo.Context) error {
 // @Param id path string true "todo id"
 // @Success 200
 // @Router /api/v1/todos/{id} [get]
+// @Security JwtToken
 func (h *TodoHandler) GetByID(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
@@ -94,6 +96,7 @@ func (h *TodoHandler) GetByID(c echo.Context) error {
 // @Produce json
 // @Success 200
 // @Router /api/v1/todos [get]
+// @Security JwtToken
 func (h *TodoHandler) Fetch(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -115,6 +118,7 @@ func (h *TodoHandler) Fetch(c echo.Context) error {
 // @Param todo body request.UpdateTodoReq true "Todo to update"
 // @Success 200
 // @Router /api/v1/todos/{id} [put]
+// @Security JwtToken
 func (h *TodoHandler) Update(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))
@@ -150,6 +154,7 @@ func (h *TodoHandler) Update(c echo.Context) error {
 // @Param id path string true "todo id"
 // @Success 200
 // @Router /api/v1/todos/{id} [delete]
+// @Security JwtToken
 func (h *TodoHandler) Delete(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, err := strconv.Atoi(c.Param("id"))

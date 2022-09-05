@@ -79,6 +79,8 @@ paths:
       responses:
         "200":
           description: ""
+      security:
+      - JwtToken: []
       summary: Fetch Todo
       tags:
       - Todos
@@ -98,6 +100,8 @@ paths:
       responses:
         "200":
           description: ""
+      security:
+      - JwtToken: []
       summary: Create Todo
       tags:
       - Todos
@@ -117,6 +121,8 @@ paths:
       responses:
         "200":
           description: ""
+      security:
+      - JwtToken: []
       summary: Delete Todo
       tags:
       - Todos
@@ -135,6 +141,8 @@ paths:
       responses:
         "200":
           description: ""
+      security:
+      - JwtToken: []
       summary: Get Todo
       tags:
       - Todos
@@ -159,7 +167,14 @@ paths:
       responses:
         "200":
           description: ""
+      security:
+      - JwtToken: []
       summary: Update Todo
       tags:
       - Todos
+securityDefinitions:
+  JwtToken:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
