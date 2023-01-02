@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/syahidfrd/go-boilerplate/utils/crypto"
 	"github.com/syahidfrd/go-boilerplate/utils/jwt"
-	"net/http"
-	"time"
 
 	_ "github.com/syahidfrd/go-boilerplate/docs"
 	"github.com/syahidfrd/go-boilerplate/utils"
@@ -76,5 +81,21 @@ func main() {
 	httpDelivery.NewTodoHandler(e, appMiddleware, todoUC)
 	httpDelivery.NewAuthHandler(e, appMiddleware, authUC)
 
-	e.Logger.Fatal(e.Start(":" + configApp.ServerPORT))
+	// Start server
+	go func() {
+		if err := e.Start(fmt.Sprintf(":%s", configApp.ServerPORT)); err != nil && err != http.ErrServerClosed {
+			e.Logger.Fatal("shutting down the server")
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(configApp.ContextTimeout)*time.Second)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
+	}
 }
