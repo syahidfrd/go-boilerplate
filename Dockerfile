@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM golang:alpine AS builder
 
 # Set necessary environmet variables needed for our image
 ENV GO111MODULE=on \
@@ -18,4 +18,14 @@ RUN go mod tidy
 # Build the application
 RUN go build -o binary cmd/api/main.go
 
-ENTRYPOINT ["/app/binary"]
+# The lightweight scratch image we'll run our application within
+FROM alpine:latest
+
+# We have to copy the output from our builder stage
+COPY --from=builder /app .
+
+# Expose port
+EXPOSE 8080
+
+# Executable
+ENTRYPOINT ["./binary"]

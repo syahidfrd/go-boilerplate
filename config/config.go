@@ -9,7 +9,6 @@ import (
 
 // Config ...
 type Config struct {
-	ServerPORT     string
 	DatabaseURL    string
 	CacheURL       string
 	LoggerLevel    string
@@ -23,7 +22,6 @@ func LoadConfig() (config *Config) {
 		panic(err)
 	}
 
-	serverPORT := os.Getenv("SERVER_PORT")
 	databaseURL := os.Getenv("DATABASE_URL")
 	cacheURL := os.Getenv("CACHE_URL")
 	loggerLevel := os.Getenv("LOGGER_LEVEL")
@@ -31,7 +29,6 @@ func LoadConfig() (config *Config) {
 	jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
 
 	return &Config{
-		ServerPORT:     serverPORT,
 		DatabaseURL:    databaseURL,
 		CacheURL:       cacheURL,
 		LoggerLevel:    loggerLevel,
