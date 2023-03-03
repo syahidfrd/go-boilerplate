@@ -35,12 +35,12 @@
 * [echo](https://github.com/labstack/echo) - Web framework
 * [go-redis](https://github.com/go-redis/redis) - Type-safe Redis client for Golang
 * [zerolog](https://github.com/rs/zerolog) - Logger
-* [ozzo-validation](github.com/go-ozzo/ozzo-validation) - Go Struct and Field validation
+* [ozzo-validation](https://github.com/go-ozzo/ozzo-validation) - Go Struct and Field validation
 * [mockery](https://github.com/vektra/mockery) - A mock code autogenerator for Golang
 * [swag](https://github.com/swaggo/swag) - Generator RESTful API documentation with Swagger
 * [echo-swagger](https://github.com/swaggo/echo-swagger) - Echo middleware for Swagger
 * [testify](https://github.com/stretchr/testify) - A toolkit with common assertions and mocks
-* [godotenv](github.com/joho/godotenv) - Environment variables loader
+* [godotenv](https://github.com/joho/godotenv) - Environment variables loader
 
 App requires 2 database (PostgreSQL and Redis server), run from your local machine or run it using docker with the following command
 ```
