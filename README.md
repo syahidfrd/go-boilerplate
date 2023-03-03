@@ -26,7 +26,6 @@
 └── utils               // Additional services
     ├── crypto
     ├── jwt
-    └── logger
 ```
 
 ### Prerequisite and full list what has been used
@@ -35,7 +34,7 @@
 * [golang-migrate](https://github.com/golang-migrate/migrate) - Database migrations. CLI and Golang library
 * [echo](https://github.com/labstack/echo) - Web framework
 * [go-redis](https://github.com/go-redis/redis) - Type-safe Redis client for Golang
-* [zap](https://github.com/uber-go/zap) - Logger
+* [zerolog](https://github.com/rs/zerolog) - Logger
 * [ozzo-validation](github.com/go-ozzo/ozzo-validation) - Go Struct and Field validation
 * [mockery](https://github.com/vektra/mockery) - A mock code autogenerator for Golang
 * [swag](https://github.com/swaggo/swag) - Generator RESTful API documentation with Swagger
