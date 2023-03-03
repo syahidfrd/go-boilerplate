@@ -6,7 +6,7 @@ import (
 	context "context"
 
 	mock "github.com/stretchr/testify/mock"
-	entity "github.com/syahidfrd/go-boilerplate/entity"
+	domain "github.com/syahidfrd/go-boilerplate/domain"
 
 	request "github.com/syahidfrd/go-boilerplate/transport/request"
 )
@@ -45,15 +45,15 @@ func (_m *TodoUsecase) Delete(ctx context.Context, id int64) error {
 }
 
 // Fetch provides a mock function with given fields: ctx
-func (_m *TodoUsecase) Fetch(ctx context.Context) ([]entity.Todo, error) {
+func (_m *TodoUsecase) Fetch(ctx context.Context) ([]domain.Todo, error) {
 	ret := _m.Called(ctx)
 
-	var r0 []entity.Todo
-	if rf, ok := ret.Get(0).(func(context.Context) []entity.Todo); ok {
+	var r0 []domain.Todo
+	if rf, ok := ret.Get(0).(func(context.Context) []domain.Todo); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]entity.Todo)
+			r0 = ret.Get(0).([]domain.Todo)
 		}
 	}
 
@@ -68,14 +68,14 @@ func (_m *TodoUsecase) Fetch(ctx context.Context) ([]entity.Todo, error) {
 }
 
 // GetByID provides a mock function with given fields: ctx, id
-func (_m *TodoUsecase) GetByID(ctx context.Context, id int64) (entity.Todo, error) {
+func (_m *TodoUsecase) GetByID(ctx context.Context, id int64) (domain.Todo, error) {
 	ret := _m.Called(ctx, id)
 
-	var r0 entity.Todo
-	if rf, ok := ret.Get(0).(func(context.Context, int64) entity.Todo); ok {
+	var r0 domain.Todo
+	if rf, ok := ret.Get(0).(func(context.Context, int64) domain.Todo); ok {
 		r0 = rf(ctx, id)
 	} else {
-		r0 = ret.Get(0).(entity.Todo)
+		r0 = ret.Get(0).(domain.Todo)
 	}
 
 	var r1 error

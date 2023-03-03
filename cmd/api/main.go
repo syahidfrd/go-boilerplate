@@ -23,7 +23,6 @@ import (
 	pgsqlRepository "github.com/syahidfrd/go-boilerplate/repository/pgsql"
 	redisRepository "github.com/syahidfrd/go-boilerplate/repository/redis"
 	"github.com/syahidfrd/go-boilerplate/usecase"
-	"github.com/syahidfrd/go-boilerplate/utils/logger"
 )
 
 // @title Go Boilerplate
@@ -35,10 +34,6 @@ import (
 func main() {
 	// Load config
 	configApp := config.LoadConfig()
-
-	// Setup logger
-	appLogger := logger.NewApiLogger(configApp)
-	appLogger.InitLogger()
 
 	// Setup infra
 	dbInstance, err := datastore.NewDatabase(configApp.DatabaseURL)
@@ -62,14 +57,12 @@ func main() {
 	authUC := usecase.NewAuthUsecase(userRepo, cryptoSvc, jwtSvc, ctxTimeout)
 
 	// Setup app middleware
-	appMiddleware := appMiddleware.NewMiddleware(jwtSvc, appLogger)
+	appMiddleware := appMiddleware.NewMiddleware(jwtSvc)
 
 	// Setup route engine & middleware
 	e := echo.New()
 	e.Use(middleware.CORS())
-	e.Use(appMiddleware.RequestID())
-	e.Use(appMiddleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(appMiddleware.Logger(nil))
 
 	// Setup handler
 	e.GET("/swagger/*", echoSwagger.WrapHandler)

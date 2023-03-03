@@ -3,30 +3,24 @@ package usecase
 import (
 	"context"
 	"database/sql"
-	"github.com/syahidfrd/go-boilerplate/entity"
-	"github.com/syahidfrd/go-boilerplate/repository/pgsql"
+	"time"
+
+	"github.com/syahidfrd/go-boilerplate/domain"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
 	"github.com/syahidfrd/go-boilerplate/utils"
 	"github.com/syahidfrd/go-boilerplate/utils/crypto"
 	"github.com/syahidfrd/go-boilerplate/utils/jwt"
-	"time"
 )
 
-// AuthUsecase represent the todos usecase contract
-type AuthUsecase interface {
-	SignUp(ctx context.Context, request *request.SignUpReq) error
-	SignIn(ctx context.Context, request *request.SignInReq) (string, error)
-}
-
 type authUsecase struct {
-	userRepo       pgsql.UserRepository
+	userRepo       domain.UserRepository
 	cryptoSvc      crypto.CryptoService
 	jwtSvc         jwt.JWTService
 	contextTimeout time.Duration
 }
 
 // NewAuthUsecase will create new an authUsecase object representation of AuthUsecase interface
-func NewAuthUsecase(userRepo pgsql.UserRepository, cryptoSvc crypto.CryptoService, jwtSvc jwt.JWTService, contextTimeout time.Duration) AuthUsecase {
+func NewAuthUsecase(userRepo domain.UserRepository, cryptoSvc crypto.CryptoService, jwtSvc jwt.JWTService, contextTimeout time.Duration) *authUsecase {
 	return &authUsecase{
 		userRepo:       userRepo,
 		cryptoSvc:      cryptoSvc,
@@ -54,7 +48,7 @@ func (u *authUsecase) SignUp(c context.Context, request *request.SignUpReq) (err
 		return
 	}
 
-	err = u.userRepo.Create(ctx, &entity.User{
+	err = u.userRepo.Create(ctx, &domain.User{
 		Email:     request.Email,
 		Password:  passwordHash,
 		CreatedAt: time.Now(),

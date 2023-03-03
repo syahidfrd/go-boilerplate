@@ -2,17 +2,18 @@ package pgsql_test
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
-	"github.com/syahidfrd/go-boilerplate/entity"
-	"github.com/syahidfrd/go-boilerplate/repository/pgsql"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"regexp"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/syahidfrd/go-boilerplate/domain"
+	"github.com/syahidfrd/go-boilerplate/repository/pgsql"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
 func TestUserRepo_Create(t *testing.T) {
-	user := &entity.User{
+	user := &domain.User{
 		Email:     "sample@mail.com",
 		Password:  "randomPasswordHash",
 		CreatedAt: time.Now(),
@@ -43,7 +44,7 @@ func TestUserRepo_GetByEmail(t *testing.T) {
 	}
 	defer db.Close()
 
-	userMock := entity.User{
+	userMock := domain.User{
 		ID:        1,
 		Email:     "sample@mail.com",
 		Password:  "randomPasswordHash",

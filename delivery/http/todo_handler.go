@@ -7,17 +7,17 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo/v4"
 	"github.com/syahidfrd/go-boilerplate/delivery/middleware"
+	"github.com/syahidfrd/go-boilerplate/domain"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
-	"github.com/syahidfrd/go-boilerplate/usecase"
 	"github.com/syahidfrd/go-boilerplate/utils"
 )
 
 type TodoHandler struct {
-	TodoUC usecase.TodoUsecase
+	TodoUC domain.TodoUsecase
 }
 
 // NewTodoHandler will initialize the todo resources endpoint
-func NewTodoHandler(e *echo.Echo, middleware *middleware.Middleware, todoUC usecase.TodoUsecase) {
+func NewTodoHandler(e *echo.Echo, middleware *middleware.Middleware, todoUC domain.TodoUsecase) {
 	handler := &TodoHandler{
 		TodoUC: todoUC,
 	}

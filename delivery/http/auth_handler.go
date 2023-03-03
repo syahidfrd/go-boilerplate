@@ -1,21 +1,22 @@
 package http
 
 import (
+	"net/http"
+
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo/v4"
 	"github.com/syahidfrd/go-boilerplate/delivery/middleware"
+	"github.com/syahidfrd/go-boilerplate/domain"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
-	"github.com/syahidfrd/go-boilerplate/usecase"
 	"github.com/syahidfrd/go-boilerplate/utils"
-	"net/http"
 )
 
 type AuthHandler struct {
-	AuthUC usecase.AuthUsecase
+	AuthUC domain.AuthUsecase
 }
 
 // NewAuthHandler will initialize the auth resources endpoint
-func NewAuthHandler(e *echo.Echo, middleware *middleware.Middleware, authUC usecase.AuthUsecase) {
+func NewAuthHandler(e *echo.Echo, middleware *middleware.Middleware, authUC domain.AuthUsecase) {
 	handler := &AuthHandler{
 		AuthUC: authUC,
 	}

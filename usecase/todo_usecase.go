@@ -6,30 +6,20 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/syahidfrd/go-boilerplate/entity"
-	"github.com/syahidfrd/go-boilerplate/repository/pgsql"
+	"github.com/syahidfrd/go-boilerplate/domain"
 	"github.com/syahidfrd/go-boilerplate/repository/redis"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
 	"github.com/syahidfrd/go-boilerplate/utils"
 )
 
-// TodoUsecase represent the todos usecase contract
-type TodoUsecase interface {
-	Create(ctx context.Context, request *request.CreateTodoReq) error
-	GetByID(ctx context.Context, id int64) (entity.Todo, error)
-	Fetch(ctx context.Context) ([]entity.Todo, error)
-	Update(ctx context.Context, id int64, request *request.UpdateTodoReq) error
-	Delete(ctx context.Context, id int64) error
-}
-
 type todoUsecase struct {
-	todoRepo   pgsql.TodoRepository
+	todoRepo   domain.TodoRepository
 	redisRepo  redis.RedisRepository
 	ctxTimeout time.Duration
 }
 
 // NewTodoUsecase will create new an todoUsecase object representation of TodoUsecase interface
-func NewTodoUsecase(todoRepo pgsql.TodoRepository, redisRepo redis.RedisRepository, ctxTimeout time.Duration) TodoUsecase {
+func NewTodoUsecase(todoRepo domain.TodoRepository, redisRepo redis.RedisRepository, ctxTimeout time.Duration) *todoUsecase {
 	return &todoUsecase{
 		todoRepo:   todoRepo,
 		redisRepo:  redisRepo,
@@ -41,7 +31,7 @@ func (u *todoUsecase) Create(c context.Context, request *request.CreateTodoReq) 
 	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
 	defer cancel()
 
-	err = u.todoRepo.Create(ctx, &entity.Todo{
+	err = u.todoRepo.Create(ctx, &domain.Todo{
 		Name:      request.Name,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -49,7 +39,7 @@ func (u *todoUsecase) Create(c context.Context, request *request.CreateTodoReq) 
 	return
 }
 
-func (u *todoUsecase) GetByID(c context.Context, id int64) (todo entity.Todo, err error) {
+func (u *todoUsecase) GetByID(c context.Context, id int64) (todo domain.Todo, err error) {
 	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
 	defer cancel()
 
@@ -61,7 +51,7 @@ func (u *todoUsecase) GetByID(c context.Context, id int64) (todo entity.Todo, er
 	return
 }
 
-func (u *todoUsecase) Fetch(c context.Context) (todos []entity.Todo, err error) {
+func (u *todoUsecase) Fetch(c context.Context) (todos []domain.Todo, err error) {
 	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
 	defer cancel()
 

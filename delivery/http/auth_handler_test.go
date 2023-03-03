@@ -3,6 +3,11 @@ package http_test
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -10,10 +15,6 @@ import (
 	httpDelivery "github.com/syahidfrd/go-boilerplate/delivery/http"
 	"github.com/syahidfrd/go-boilerplate/mocks"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
-	"net/http"
-	"net/http/httptest"
-	"strings"
-	"testing"
 )
 
 func TestAuthHandler_SignUp(t *testing.T) {

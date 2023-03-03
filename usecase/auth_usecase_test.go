@@ -3,14 +3,15 @@ package usecase_test
 import (
 	"context"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/syahidfrd/go-boilerplate/entity"
+	"github.com/syahidfrd/go-boilerplate/domain"
 	"github.com/syahidfrd/go-boilerplate/mocks"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
 	"github.com/syahidfrd/go-boilerplate/usecase"
-	"testing"
-	"time"
 )
 
 func TestAuthUC_SignUp(t *testing.T) {
@@ -23,9 +24,9 @@ func TestAuthUC_SignUp(t *testing.T) {
 	}
 
 	t.Run("success", func(t *testing.T) {
-		mockUserRepo.On("GetByEmail", mock.Anything, mock.AnythingOfType("string")).Return(entity.User{}, nil).Once()
+		mockUserRepo.On("GetByEmail", mock.Anything, mock.AnythingOfType("string")).Return(domain.User{}, nil).Once()
 		mockCryptoSvc.On("CreatePasswordHash", mock.Anything, mock.AnythingOfType("string")).Return("passwordHash", nil).Once()
-		mockUserRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.User")).Return(nil).Once()
+		mockUserRepo.On("Create", mock.Anything, mock.AnythingOfType("*domain.User")).Return(nil).Once()
 
 		authUC := usecase.NewAuthUsecase(mockUserRepo, mockCryptoSvc, mockJWTSvc, 60*time.Second)
 		err := authUC.SignUp(context.TODO(), &signUpReq)
@@ -37,7 +38,7 @@ func TestAuthUC_SignUp(t *testing.T) {
 	})
 
 	t.Run("email-already-registered", func(t *testing.T) {
-		mockUserRepo.On("GetByEmail", mock.Anything, mock.AnythingOfType("string")).Return(entity.User{ID: 1}, nil).Once()
+		mockUserRepo.On("GetByEmail", mock.Anything, mock.AnythingOfType("string")).Return(domain.User{ID: 1}, nil).Once()
 
 		authUC := usecase.NewAuthUsecase(mockUserRepo, mockCryptoSvc, mockJWTSvc, 60*time.Second)
 		err := authUC.SignUp(context.TODO(), &signUpReq)
@@ -49,7 +50,7 @@ func TestAuthUC_SignUp(t *testing.T) {
 	})
 
 	t.Run("error-password-hash", func(t *testing.T) {
-		mockUserRepo.On("GetByEmail", mock.Anything, mock.AnythingOfType("string")).Return(entity.User{}, nil).Once()
+		mockUserRepo.On("GetByEmail", mock.Anything, mock.AnythingOfType("string")).Return(domain.User{}, nil).Once()
 		mockCryptoSvc.On("CreatePasswordHash", mock.Anything, mock.AnythingOfType("string")).Return("", errors.New("unexpected error")).Once()
 
 		authUC := usecase.NewAuthUsecase(mockUserRepo, mockCryptoSvc, mockJWTSvc, 60*time.Second)
@@ -62,9 +63,9 @@ func TestAuthUC_SignUp(t *testing.T) {
 	})
 
 	t.Run("error-create-new-user", func(t *testing.T) {
-		mockUserRepo.On("GetByEmail", mock.Anything, mock.AnythingOfType("string")).Return(entity.User{}, nil).Once()
+		mockUserRepo.On("GetByEmail", mock.Anything, mock.AnythingOfType("string")).Return(domain.User{}, nil).Once()
 		mockCryptoSvc.On("CreatePasswordHash", mock.Anything, mock.AnythingOfType("string")).Return("passwordHash", nil).Once()
-		mockUserRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.User")).Return(errors.New("unexpected error")).Once()
+		mockUserRepo.On("Create", mock.Anything, mock.AnythingOfType("*domain.User")).Return(errors.New("unexpected error")).Once()
 
 		authUC := usecase.NewAuthUsecase(mockUserRepo, mockCryptoSvc, mockJWTSvc, 60*time.Second)
 		err := authUC.SignUp(context.TODO(), &signUpReq)
@@ -80,7 +81,7 @@ func TestAuthUC_SignIn(t *testing.T) {
 	mockUserRepo := new(mocks.UserRepository)
 	mockCryptoSvc := new(mocks.CryptoService)
 	mockJWTSvc := new(mocks.JWTService)
-	mockUser := entity.User{
+	mockUser := domain.User{
 		ID:        1,
 		Email:     "sample@mail.com",
 		Password:  "12345678",

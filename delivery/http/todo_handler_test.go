@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	httpDelivery "github.com/syahidfrd/go-boilerplate/delivery/http"
-	"github.com/syahidfrd/go-boilerplate/entity"
+	"github.com/syahidfrd/go-boilerplate/domain"
 	"github.com/syahidfrd/go-boilerplate/mocks"
 	"github.com/syahidfrd/go-boilerplate/transport/request"
 	"github.com/syahidfrd/go-boilerplate/utils"
@@ -109,7 +109,7 @@ func TestTodoHandler_Create(t *testing.T) {
 
 func TestTodoHandler_GetByID(t *testing.T) {
 	mockTodoUC := new(mocks.TodoUsecase)
-	mockTodo := entity.Todo{
+	mockTodo := domain.Todo{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
@@ -143,7 +143,7 @@ func TestTodoHandler_GetByID(t *testing.T) {
 
 	t.Run("data-not-exist", func(t *testing.T) {
 		mockTodoUC.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
-			Return(entity.Todo{}, utils.NewNotFoundError("todo not found")).Once()
+			Return(domain.Todo{}, utils.NewNotFoundError("todo not found")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.GET, "/api/v1/todos/"+strconv.Itoa(int(mockTodo.ID)), strings.NewReader(""))
@@ -168,7 +168,7 @@ func TestTodoHandler_GetByID(t *testing.T) {
 
 	t.Run("error-usecase", func(t *testing.T) {
 		mockTodoUC.On("GetByID", mock.Anything, mock.AnythingOfType("int64")).
-			Return(entity.Todo{}, errors.New("Unexpected Error")).Once()
+			Return(domain.Todo{}, errors.New("Unexpected Error")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.GET, "/api/v1/todos/"+strconv.Itoa(int(mockTodo.ID)), strings.NewReader(""))
@@ -194,14 +194,14 @@ func TestTodoHandler_GetByID(t *testing.T) {
 
 func TestTodoHandler_Fetch(t *testing.T) {
 	mockTodoUC := new(mocks.TodoUsecase)
-	mockTodo := entity.Todo{
+	mockTodo := domain.Todo{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
-	mockListTodo := make([]entity.Todo, 0)
+	mockListTodo := make([]domain.Todo, 0)
 	mockListTodo = append(mockListTodo, mockTodo)
 
 	t.Run("success", func(t *testing.T) {
@@ -227,7 +227,7 @@ func TestTodoHandler_Fetch(t *testing.T) {
 	})
 
 	t.Run("error-usecase", func(t *testing.T) {
-		mockTodoUC.On("Fetch", mock.Anything).Return([]entity.Todo{}, errors.New("Unexpected Error")).Once()
+		mockTodoUC.On("Fetch", mock.Anything).Return([]domain.Todo{}, errors.New("Unexpected Error")).Once()
 
 		e := echo.New()
 		req, err := http.NewRequest(echo.GET, "/api/v1/todos/", strings.NewReader(""))
@@ -251,7 +251,7 @@ func TestTodoHandler_Fetch(t *testing.T) {
 
 func TestTodoHandler_Update(t *testing.T) {
 	mockTodoUC := new(mocks.TodoUsecase)
-	mockTodo := entity.Todo{
+	mockTodo := domain.Todo{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
@@ -377,7 +377,7 @@ func TestTodoHandler_Update(t *testing.T) {
 
 func TestTodoHandler_Delete(t *testing.T) {
 	mockTodoUC := new(mocks.TodoUsecase)
-	mockTodo := entity.Todo{
+	mockTodo := domain.Todo{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),

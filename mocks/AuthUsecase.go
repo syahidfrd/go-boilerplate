@@ -6,6 +6,7 @@ import (
 	context "context"
 
 	mock "github.com/stretchr/testify/mock"
+
 	request "github.com/syahidfrd/go-boilerplate/transport/request"
 )
 

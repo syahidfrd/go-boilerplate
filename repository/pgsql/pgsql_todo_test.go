@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/syahidfrd/go-boilerplate/entity"
+	"github.com/syahidfrd/go-boilerplate/domain"
 	"github.com/syahidfrd/go-boilerplate/repository/pgsql"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
 func TestTodoRepo_Create(t *testing.T) {
-	todo := &entity.Todo{
+	todo := &domain.Todo{
 		Name:      "name",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -42,7 +42,7 @@ func TestTodoRepo_GetByID(t *testing.T) {
 	}
 	defer db.Close()
 
-	todoMock := entity.Todo{
+	todoMock := domain.Todo{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),
@@ -71,7 +71,7 @@ func TestTodoRepo_Fetch(t *testing.T) {
 	}
 	defer db.Close()
 
-	mockTodos := []entity.Todo{
+	mockTodos := []domain.Todo{
 		{ID: 1, Name: "name", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		{ID: 2, Name: "name 2", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 	}
@@ -96,7 +96,7 @@ func TestTodoRepo_Update(t *testing.T) {
 	}
 	defer db.Close()
 
-	todo := &entity.Todo{
+	todo := &domain.Todo{
 		ID:        1,
 		Name:      "name",
 		CreatedAt: time.Now(),

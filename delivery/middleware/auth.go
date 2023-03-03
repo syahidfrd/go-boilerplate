@@ -1,11 +1,12 @@
 package middleware
 
 import (
+	"net/http"
+	"strings"
+
 	jwtLib "github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/syahidfrd/go-boilerplate/utils"
-	"net/http"
-	"strings"
 )
 
 func (m *Middleware) JWTAuth() echo.MiddlewareFunc {

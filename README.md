@@ -12,7 +12,7 @@
 │   ├── http
 │   └── middleware
 ├── docs                // Design and user documents (in addition to your godoc generated documentation)
-├── entity              // Entities is a struct to store any objects from database, example you have a products in your tables.
+├── domain              // Domains is a struct to store any objects from database, example you have a products in your tables.
 ├── infrastructure
 │   └── datastore       // Database configuration
 ├── migration           // Database migrations.
