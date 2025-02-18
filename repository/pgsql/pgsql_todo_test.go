@@ -25,10 +25,14 @@ func TestTodoRepo_Create(t *testing.T) {
 	}
 	defer db.Close()
 
+	mock.ExpectBegin()
+
 	query := "INSERT INTO todos"
 	mock.ExpectExec(regexp.QuoteMeta(query)).
 		WithArgs(todo.Name, todo.CreatedAt, todo.UpdatedAt).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	mock.ExpectCommit()
 
 	todoRepo := pgsql.NewPgsqlTodoRepository(db)
 	err = todoRepo.Create(context.TODO(), todo)
@@ -52,10 +56,14 @@ func TestTodoRepo_GetByID(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "name", "created_at", "updated_at"}).
 		AddRow(todoMock.ID, todoMock.Name, todoMock.CreatedAt, todoMock.UpdatedAt)
 
+	mock.ExpectBegin()
+
 	query := "SELECT id, name, created_at, updated_at FROM todos WHERE id = $1"
 	mock.ExpectQuery(regexp.QuoteMeta(query)).
 		WithArgs(1).
 		WillReturnRows(rows)
+
+	mock.ExpectCommit()
 
 	todoRepo := pgsql.NewPgsqlTodoRepository(db)
 	todo, err := todoRepo.GetByID(context.TODO(), 1)
@@ -80,8 +88,12 @@ func TestTodoRepo_Fetch(t *testing.T) {
 		AddRow(mockTodos[0].ID, mockTodos[0].Name, mockTodos[0].CreatedAt, mockTodos[0].UpdatedAt).
 		AddRow(mockTodos[1].ID, mockTodos[1].Name, mockTodos[1].CreatedAt, mockTodos[1].UpdatedAt)
 
+	mock.ExpectBegin()
+
 	query := "SELECT id, name, created_at, updated_at FROM todos"
 	mock.ExpectQuery(query).WillReturnRows(rows)
+
+	mock.ExpectCommit()
 
 	todoRepo := pgsql.NewPgsqlTodoRepository(db)
 	todos, err := todoRepo.Fetch(context.TODO())
@@ -103,10 +115,14 @@ func TestTodoRepo_Update(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
+	mock.ExpectBegin()
+
 	query := "UPDATE todos SET name = $1, updated_at = $2 WHERE id = $3"
 	mock.ExpectExec(regexp.QuoteMeta(query)).
 		WithArgs(todo.Name, todo.UpdatedAt, todo.ID).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	mock.ExpectCommit()
 
 	todoRepo := pgsql.NewPgsqlTodoRepository(db)
 	err = todoRepo.Update(context.TODO(), todo)
@@ -120,10 +136,14 @@ func TestTodoRepo_Delete(t *testing.T) {
 	}
 	defer db.Close()
 
+	mock.ExpectBegin()
+
 	query := "DELETE FROM todos WHERE id = $1"
 	mock.ExpectExec(regexp.QuoteMeta(query)).
 		WithArgs(1).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	mock.ExpectCommit()
 
 	todoRepo := pgsql.NewPgsqlTodoRepository(db)
 	err = todoRepo.Delete(context.TODO(), 1)
