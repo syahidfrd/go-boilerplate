@@ -13,6 +13,7 @@ import (
 )
 
 type authUsecase struct {
+	db             domain.Database
 	userRepo       domain.UserRepository
 	cryptoSvc      crypto.CryptoService
 	jwtSvc         jwt.JWTService
@@ -20,8 +21,9 @@ type authUsecase struct {
 }
 
 // NewAuthUsecase will create new an authUsecase object representation of AuthUsecase interface
-func NewAuthUsecase(userRepo domain.UserRepository, cryptoSvc crypto.CryptoService, jwtSvc jwt.JWTService, contextTimeout time.Duration) *authUsecase {
+func NewAuthUsecase(db domain.Database, userRepo domain.UserRepository, cryptoSvc crypto.CryptoService, jwtSvc jwt.JWTService, contextTimeout time.Duration) *authUsecase {
 	return &authUsecase{
+		db:             db,
 		userRepo:       userRepo,
 		cryptoSvc:      cryptoSvc,
 		jwtSvc:         jwtSvc,
@@ -33,7 +35,17 @@ func (u *authUsecase) SignUp(c context.Context, request *request.SignUpReq) (err
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
-	user, err := u.userRepo.GetByEmail(ctx, request.Email)
+	tx, err := u.db.BeginTx(ctx)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	user, err := u.userRepo.GetByEmail(ctx, tx, request.Email)
 	if err != nil && err != sql.ErrNoRows {
 		return
 	}
@@ -48,12 +60,17 @@ func (u *authUsecase) SignUp(c context.Context, request *request.SignUpReq) (err
 		return
 	}
 
-	err = u.userRepo.Create(ctx, &domain.User{
+	err = u.userRepo.Create(ctx, tx, &domain.User{
 		Email:     request.Email,
 		Password:  passwordHash,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	})
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
 	return
 }
 
@@ -61,7 +78,17 @@ func (u *authUsecase) SignIn(c context.Context, request *request.SignInReq) (acc
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
-	user, err := u.userRepo.GetByEmail(ctx, request.Email)
+	tx, err := u.db.BeginTx(ctx)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	user, err := u.userRepo.GetByEmail(ctx, tx, request.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = utils.NewBadRequestError("email and password not match")
@@ -76,5 +103,10 @@ func (u *authUsecase) SignIn(c context.Context, request *request.SignInReq) (acc
 	}
 
 	accessToken, err = u.jwtSvc.GenerateToken(ctx, user.ID)
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
 	return
 }

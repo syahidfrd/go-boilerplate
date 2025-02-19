@@ -44,8 +44,8 @@ func main() {
 
 	// Setup repository
 	redisRepo := redisRepository.NewRedisRepository(cacheInstance)
-	todoRepo := pgsqlRepository.NewPgsqlTodoRepository(dbInstance)
-	userRepo := pgsqlRepository.NewPgsqlUserRepository(dbInstance)
+	todoRepo := pgsqlRepository.NewPgsqlTodoRepository()
+	userRepo := pgsqlRepository.NewPgsqlUserRepository()
 
 	// Setup Service
 	cryptoSvc := crypto.NewCryptoService()
@@ -53,8 +53,8 @@ func main() {
 
 	// Setup usecase
 	ctxTimeout := time.Duration(configApp.ContextTimeout) * time.Second
-	todoUC := usecase.NewTodoUsecase(todoRepo, redisRepo, ctxTimeout)
-	authUC := usecase.NewAuthUsecase(userRepo, cryptoSvc, jwtSvc, ctxTimeout)
+	todoUC := usecase.NewTodoUsecase(dbInstance, todoRepo, redisRepo, ctxTimeout)
+	authUC := usecase.NewAuthUsecase(dbInstance, userRepo, cryptoSvc, jwtSvc, ctxTimeout)
 
 	// Setup app middleware
 	appMiddleware := appMiddleware.NewMiddleware(jwtSvc)
