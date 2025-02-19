@@ -16,6 +16,6 @@ type User struct {
 
 // UserRepository represent the todos repository contract
 type UserRepository interface {
-	Create(ctx context.Context, user *User) error
-	GetByEmail(ctx context.Context, email string) (User, error)
+	Create(ctx context.Context, tx Transaction, user *User) error
+	GetByEmail(ctx context.Context, tx Transaction, email string) (User, error)
 }

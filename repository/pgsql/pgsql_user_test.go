@@ -27,10 +27,14 @@ func TestUserRepo_Create(t *testing.T) {
 
 	defer db.Close()
 
+	mock.ExpectBegin()
+
 	query := "INSERT INTO users"
 	mock.ExpectExec(regexp.QuoteMeta(query)).
 		WithArgs(user.Email, user.Password, user.CreatedAt, user.UpdatedAt).
 		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	mock.ExpectCommit()
 
 	userRepo := pgsql.NewPgsqlUserRepository(db)
 	err = userRepo.Create(context.TODO(), user)
@@ -55,13 +59,18 @@ func TestUserRepo_GetByEmail(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "email", "password", "created_at", "updated_at"}).
 		AddRow(userMock.ID, userMock.Email, userMock.Password, userMock.CreatedAt, userMock.UpdatedAt)
 
+	mock.ExpectBegin()
+
 	query := "SELECT id, email, password, created_at, updated_at FROM users WHERE email = $1"
 	mock.ExpectQuery(regexp.QuoteMeta(query)).
 		WithArgs(userMock.Email).
 		WillReturnRows(rows)
 
+	mock.ExpectCommit()
+
 	userRepo := pgsql.NewPgsqlUserRepository(db)
 	user, err := userRepo.GetByEmail(context.TODO(), userMock.Email)
+
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 	assert.Equal(t, userMock.ID, user.ID)

@@ -13,14 +13,16 @@ import (
 )
 
 type todoUsecase struct {
+	db         domain.Database
 	todoRepo   domain.TodoRepository
 	redisRepo  redis.RedisRepository
 	ctxTimeout time.Duration
 }
 
 // NewTodoUsecase will create new an todoUsecase object representation of TodoUsecase interface
-func NewTodoUsecase(todoRepo domain.TodoRepository, redisRepo redis.RedisRepository, ctxTimeout time.Duration) *todoUsecase {
+func NewTodoUsecase(db domain.Database, todoRepo domain.TodoRepository, redisRepo redis.RedisRepository, ctxTimeout time.Duration) *todoUsecase {
 	return &todoUsecase{
+		db:         db,
 		todoRepo:   todoRepo,
 		redisRepo:  redisRepo,
 		ctxTimeout: ctxTimeout,
@@ -31,11 +33,26 @@ func (u *todoUsecase) Create(c context.Context, request *request.CreateTodoReq) 
 	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
 	defer cancel()
 
-	err = u.todoRepo.Create(ctx, &domain.Todo{
+	tx, err := u.db.BeginTx(ctx)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	err = u.todoRepo.Create(ctx, tx, &domain.Todo{
 		Name:      request.Name,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	})
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
 	return
 }
 
@@ -43,11 +60,26 @@ func (u *todoUsecase) GetByID(c context.Context, id int64) (todo domain.Todo, er
 	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
 	defer cancel()
 
-	todo, err = u.todoRepo.GetByID(ctx, id)
+	tx, err := u.db.BeginTx(ctx)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	todo, err = u.todoRepo.GetByID(ctx, tx, id)
 	if err != nil && err == sql.ErrNoRows {
 		err = utils.NewNotFoundError("todo not found")
 		return
 	}
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
 	return
 }
 
@@ -55,18 +87,33 @@ func (u *todoUsecase) Fetch(c context.Context) (todos []domain.Todo, err error) 
 	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
 	defer cancel()
 
+	tx, err := u.db.BeginTx(ctx)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			tx.Rollback()
+		}
+	}()
+
 	todosCached, _ := u.redisRepo.Get("todos")
 	if err = json.Unmarshal([]byte(todosCached), &todos); err == nil {
 		return
 	}
 
-	todos, err = u.todoRepo.Fetch(ctx)
+	todos, err = u.todoRepo.Fetch(ctx, tx)
 	if err != nil {
 		return
 	}
 
 	todosString, _ := json.Marshal(&todos)
 	u.redisRepo.Set("todos", todosString, 30*time.Second)
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
 	return
 }
 
@@ -74,7 +121,17 @@ func (u *todoUsecase) Update(c context.Context, id int64, request *request.Updat
 	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
 	defer cancel()
 
-	todo, err := u.todoRepo.GetByID(ctx, id)
+	tx, err := u.db.BeginTx(ctx)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	todo, err := u.todoRepo.GetByID(ctx, tx, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = utils.NewNotFoundError("todo not found")
@@ -86,7 +143,12 @@ func (u *todoUsecase) Update(c context.Context, id int64, request *request.Updat
 	todo.Name = request.Name
 	todo.UpdatedAt = time.Now()
 
-	err = u.todoRepo.Update(ctx, &todo)
+	err = u.todoRepo.Update(ctx, tx, &todo)
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
 	return
 }
 
@@ -94,7 +156,17 @@ func (u *todoUsecase) Delete(c context.Context, id int64) (err error) {
 	ctx, cancel := context.WithTimeout(c, u.ctxTimeout)
 	defer cancel()
 
-	_, err = u.todoRepo.GetByID(ctx, id)
+	tx, err := u.db.BeginTx(ctx)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	_, err = u.todoRepo.GetByID(ctx, tx, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = utils.NewNotFoundError("todo not found")
@@ -103,6 +175,11 @@ func (u *todoUsecase) Delete(c context.Context, id int64) (err error) {
 		return
 	}
 
-	err = u.todoRepo.Delete(ctx, id)
+	err = u.todoRepo.Delete(ctx, tx, id)
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
+
 	return
 }

@@ -17,11 +17,11 @@ type Todo struct {
 
 // TodoRepository represent the todos repository contract
 type TodoRepository interface {
-	Create(ctx context.Context, todo *Todo) error
-	GetByID(ctx context.Context, id int64) (Todo, error)
-	Fetch(ctx context.Context) ([]Todo, error)
-	Update(ctx context.Context, todo *Todo) error
-	Delete(ctx context.Context, id int64) error
+	Create(ctx context.Context, tx Transaction, todo *Todo) error
+	GetByID(ctx context.Context, tx Transaction, id int64) (Todo, error)
+	Fetch(ctx context.Context, tx Transaction) ([]Todo, error)
+	Update(ctx context.Context, tx Transaction, todo *Todo) error
+	Delete(ctx context.Context, tx Transaction, id int64) error
 }
 
 // TodoUsecase represent the todos usecase contract
