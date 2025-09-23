@@ -3,7 +3,9 @@
 package health
 
 import (
+	"context"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,44 +13,30 @@ import (
 	"github.com/syahidfrd/go-boilerplate/internal/pkg/test"
 )
 
+var sharedContainer *test.Container
+
+func TestMain(m *testing.M) {
+	var cleanup func() int
+	sharedContainer, cleanup = test.SetupTestMain()
+
+	// Run standard migrations
+	sharedContainer.RunStandardMigrations(&testing.T{})
+
+	code := m.Run()
+	os.Exit(cleanup() + code)
+}
+
 func setupTestServices(t *testing.T) (*Service, *Handler, *test.Container) {
 	t.Helper()
 
-	tc := test.SetupFullContainer(t)
-	tc.MigrateAll(t)
+	// Clean all data before each test
+	sharedContainer.CleanupAll(t)
 
-	store := NewStore(tc.DB, tc.Redis)
+	store := NewStore(sharedContainer.DB, sharedContainer.Redis)
 	service := NewService(store)
 	handler := NewHandler(service)
 
-	return service, handler, tc
-}
-
-func setupTestServicesWithDBOnly(t *testing.T) (*Service, *Handler, *test.Container) {
-	t.Helper()
-
-	tc := test.SetupPostgresContainer(t)
-	tc.MigrateAll(t)
-
-	// Create a nil Redis client to simulate Redis being down
-	store := NewStore(tc.DB, nil)
-	service := NewService(store)
-	handler := NewHandler(service)
-
-	return service, handler, tc
-}
-
-func setupTestServicesWithRedisOnly(t *testing.T) (*Service, *Handler, *test.Container) {
-	t.Helper()
-
-	tc := test.SetupRedisContainer(t)
-
-	// Create a nil DB connection to simulate DB being down
-	store := NewStore(nil, tc.Redis)
-	service := NewService(store)
-	handler := NewHandler(service)
-
-	return service, handler, tc
+	return service, handler, sharedContainer
 }
 
 func TestHealthCheckIntegration(t *testing.T) {
@@ -82,10 +70,11 @@ func TestHealthCheckIntegration(t *testing.T) {
 }
 
 func TestHealthCheckDatabaseDownIntegration(t *testing.T) {
-	tc := test.SetupRedisContainer(t)
+	// Clean cache before test
+	sharedContainer.CleanupCache(t)
 
 	// Create store with nil database to simulate database being down
-	store := NewStore(nil, tc.Redis)
+	store := NewStore(nil, sharedContainer.Redis)
 	service := NewService(store)
 	handler := NewHandler(service)
 
@@ -101,11 +90,11 @@ func TestHealthCheckDatabaseDownIntegration(t *testing.T) {
 }
 
 func TestHealthCheckCacheDownIntegration(t *testing.T) {
-	tc := test.SetupPostgresContainer(t)
-	tc.MigrateAll(t)
+	// Clean database before test
+	sharedContainer.CleanupDatabase(t)
 
 	// Create store with nil Redis to simulate cache being down
-	store := NewStore(tc.DB, nil)
+	store := NewStore(sharedContainer.DB, nil)
 	service := NewService(store)
 	handler := NewHandler(service)
 
@@ -150,13 +139,14 @@ func TestHealthServiceCheckIntegration(t *testing.T) {
 }
 
 func TestHealthServiceCheckWithDatabaseErrorIntegration(t *testing.T) {
-	tc := test.SetupRedisContainer(t)
+	// Clean cache before test
+	sharedContainer.CleanupCache(t)
 
 	// Create service with nil database
-	store := NewStore(nil, tc.Redis)
+	store := NewStore(nil, sharedContainer.Redis)
 	service := NewService(store)
 
-	resp, err := service.Check(tc.Redis.Context())
+	resp, err := service.Check(context.Background())
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 
@@ -165,14 +155,14 @@ func TestHealthServiceCheckWithDatabaseErrorIntegration(t *testing.T) {
 }
 
 func TestHealthServiceCheckWithCacheErrorIntegration(t *testing.T) {
-	tc := test.SetupPostgresContainer(t)
-	tc.MigrateAll(t)
+	// Clean database before test
+	sharedContainer.CleanupDatabase(t)
 
 	// Create service with nil Redis
-	store := NewStore(tc.DB, nil)
+	store := NewStore(sharedContainer.DB, nil)
 	service := NewService(store)
 
-	resp, err := service.Check(tc.DB.Statement.Context)
+	resp, err := service.Check(context.Background())
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 
@@ -181,35 +171,36 @@ func TestHealthServiceCheckWithCacheErrorIntegration(t *testing.T) {
 }
 
 func TestHealthStorePingDatabaseIntegration(t *testing.T) {
-	tc := test.SetupPostgresContainer(t)
-	tc.MigrateAll(t)
+	// Clean database before test
+	sharedContainer.CleanupDatabase(t)
 
-	store := NewStore(tc.DB, nil)
+	store := NewStore(sharedContainer.DB, nil)
 
-	err := store.PingDatabase(tc.DB.Statement.Context)
+	err := store.PingDatabase(context.Background())
 	assert.NoError(t, err)
 }
 
 func TestHealthStorePingCacheIntegration(t *testing.T) {
-	tc := test.SetupRedisContainer(t)
+	// Clean cache before test
+	sharedContainer.CleanupCache(t)
 
-	store := NewStore(nil, tc.Redis)
+	store := NewStore(nil, sharedContainer.Redis)
 
-	err := store.PingCache(tc.Redis.Context())
+	err := store.PingCache(context.Background())
 	assert.NoError(t, err)
 }
 
 func TestHealthStorePingDatabaseErrorIntegration(t *testing.T) {
 	store := NewStore(nil, nil)
 
-	err := store.PingDatabase(nil)
+	err := store.PingDatabase(context.Background())
 	assert.Error(t, err)
 }
 
 func TestHealthStorePingCacheErrorIntegration(t *testing.T) {
 	store := NewStore(nil, nil)
 
-	err := store.PingCache(nil)
+	err := store.PingCache(context.Background())
 	assert.Error(t, err)
 }
 

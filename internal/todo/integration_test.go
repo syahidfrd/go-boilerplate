@@ -5,6 +5,7 @@ package todo
 import (
 	"context"
 	"net/http"
+	"os"
 	"strconv"
 	"testing"
 
@@ -15,33 +16,35 @@ import (
 	"github.com/syahidfrd/go-boilerplate/internal/pkg/test"
 )
 
+var sharedContainer *test.Container
+
+func TestMain(m *testing.M) {
+	var cleanup func() int
+	sharedContainer, cleanup = test.SetupTestMain()
+
+	// Run standard migrations + Todo model
+	sharedContainer.RunStandardMigrations(&testing.T{})
+	err := sharedContainer.DB.AutoMigrate(&Todo{})
+	if err != nil {
+		panic("failed to migrate Todo model: " + err.Error())
+	}
+
+	code := m.Run()
+	os.Exit(cleanup() + code)
+}
+
 func setupTestServices(t *testing.T) (*Service, *handler, *test.Container) {
 	t.Helper()
 
-	tc := test.SetupFullContainer(t)
-	tc.MigrateModels(t, &Todo{})
+	// Clean all data before each test
+	sharedContainer.CleanupAll(t)
 
-	store := NewStore(tc.DB)
-	redisCache := cache.NewRedis(tc.Redis)
+	store := NewStore(sharedContainer.DB)
+	redisCache := cache.NewRedis(sharedContainer.Redis)
 	service := NewService(store, redisCache)
 	handler := NewHandler(service)
 
-	return service, handler, tc
-}
-
-func setupTestServicesWithoutCache(t *testing.T) (*Service, *handler, *test.Container) {
-	t.Helper()
-
-	tc := test.SetupPostgresContainer(t)
-	tc.MigrateModels(t, &Todo{})
-
-	store := NewStore(tc.DB)
-	// Create empty Redis cache for testing without cache functionality
-	redisCache := cache.NewRedis(nil)
-	service := NewService(store, redisCache)
-	handler := NewHandler(service)
-
-	return service, handler, tc
+	return service, handler, sharedContainer
 }
 
 func createAuthenticatedContext(userID int64) context.Context {

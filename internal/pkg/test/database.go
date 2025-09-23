@@ -25,130 +25,86 @@ type Container struct {
 	Redis             *redis.Client
 }
 
-// SetupPostgresContainer creates a PostgreSQL testcontainer with migrations
-func SetupPostgresContainer(t *testing.T) *Container {
-	t.Helper()
-
+// Terminate gracefully shuts down all containers
+func (c *Container) Terminate() error {
 	ctx := context.Background()
 
-	postgresContainer, err := postgres.RunContainer(ctx,
-		testcontainers.WithImage("postgres:15-alpine"),
-		postgres.WithDatabase("testdb"),
-		postgres.WithUsername("testuser"),
-		postgres.WithPassword("testpass"),
-		testcontainers.WithWaitStrategy(
-			wait.ForLog("database system is ready to accept connections").
-				WithOccurrence(2).
-				WithStartupTimeout(5*time.Minute)),
-	)
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		if err := postgresContainer.Terminate(ctx); err != nil {
-			t.Logf("failed to terminate container: %s", err)
+	if c.PostgresContainer != nil {
+		if err := c.PostgresContainer.Terminate(ctx); err != nil {
+			return err
 		}
-	})
-
-	host, err := postgresContainer.Host(ctx)
-	require.NoError(t, err)
-
-	port, err := postgresContainer.MappedPort(ctx, "5432")
-	require.NoError(t, err)
-
-	cfg := &config.Config{
-		Database: config.Database{
-			Host:        host,
-			Port:        port.Int(),
-			User:        "testuser",
-			Password:    "testpass",
-			Name:        "testdb",
-			MaxIdleConn: 10,
-			MaxOpenConn: 100,
-		},
 	}
 
-	dbConn, err := db.NewPostgres(cfg)
-	require.NoError(t, err)
-
-	return &Container{
-		PostgresContainer: postgresContainer,
-		DB:                dbConn,
+	if c.RedisContainer != nil {
+		if err := c.RedisContainer.Terminate(ctx); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
-// MigrateAll runs migrations for all common models
-func (c *Container) MigrateAll(t *testing.T) {
+// CleanupDatabase cleans all test data from database tables
+func (c *Container) CleanupDatabase(t *testing.T) {
 	t.Helper()
 
-	err := db.AutoMigrate(c.DB, &user.User{}, &user.Preference{})
-	require.NoError(t, err)
-}
+	if c.DB == nil {
+		return
+	}
 
-// MigrateModels runs migrations for specific models
-func (c *Container) MigrateModels(t *testing.T, models ...any) {
-	t.Helper()
+	// Dynamically get all user tables from information_schema
+	var tables []string
+	err := c.DB.Raw(`
+		SELECT table_name
+		FROM information_schema.tables
+		WHERE table_schema = 'public'
+		AND table_type = 'BASE TABLE'
+		AND table_name NOT LIKE 'pg_%'
+		AND table_name NOT LIKE 'sql_%'
+	`).Scan(&tables).Error
 
-	err := db.AutoMigrate(c.DB, models...)
-	require.NoError(t, err)
-}
+	if err != nil {
+		t.Logf("failed to get table list: %v", err)
+		return
+	}
 
-// CleanupTables truncates all tables for test isolation
-func (c *Container) CleanupTables(t *testing.T, tables ...string) {
-	t.Helper()
-
+	// Truncate all found tables
 	for _, table := range tables {
-		err := c.DB.Exec("TRUNCATE TABLE " + table + " CASCADE").Error
-		require.NoError(t, err)
-	}
-}
-
-// SetupRedisContainer creates a Redis testcontainer
-func SetupRedisContainer(t *testing.T) *Container {
-	t.Helper()
-
-	ctx := context.Background()
-
-	redisContainer, err := redisContainer.RunContainer(ctx,
-		testcontainers.WithImage("redis:7-alpine"),
-		testcontainers.WithWaitStrategy(wait.ForLog("Ready to accept connections")),
-	)
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		if err := redisContainer.Terminate(ctx); err != nil {
-			t.Logf("failed to terminate redis container: %s", err)
+		err = c.DB.Exec("TRUNCATE TABLE " + table + " CASCADE").Error
+		if err != nil {
+			t.Logf("failed to truncate table %s: %v", table, err)
 		}
-	})
-
-	host, err := redisContainer.Host(ctx)
-	require.NoError(t, err)
-
-	port, err := redisContainer.MappedPort(ctx, "6379")
-	require.NoError(t, err)
-
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: host + ":" + port.Port(),
-	})
-
-	// Test connection
-	err = redisClient.Ping().Err()
-	require.NoError(t, err)
-
-	return &Container{
-		RedisContainer: redisContainer,
-		Redis:          redisClient,
 	}
 }
 
-// SetupFullContainer creates both PostgreSQL and Redis testcontainers
-func SetupFullContainer(t *testing.T) *Container {
+// CleanupCache clears all Redis cache data
+func (c *Container) CleanupCache(t *testing.T) {
 	t.Helper()
 
+	if c.Redis == nil {
+		return
+	}
+
+	err := c.Redis.FlushAll().Err()
+	if err != nil {
+		t.Logf("failed to flush Redis cache: %v", err)
+	}
+}
+
+// CleanupAll cleans both database and cache
+func (c *Container) CleanupAll(t *testing.T) {
+	c.CleanupDatabase(t)
+	c.CleanupCache(t)
+}
+
+// SetupTestMain sets up shared containers for a test package
+// Should be called from TestMain to initialize containers once per package
+func SetupTestMain() (*Container, func() int) {
 	ctx := context.Background()
 
 	// Setup PostgreSQL
-	postgresContainer, err := postgres.RunContainer(ctx,
-		testcontainers.WithImage("postgres:15-alpine"),
+	postgresContainer, err := postgres.Run(ctx,
+		"postgres:15-alpine",
 		postgres.WithDatabase("testdb"),
 		postgres.WithUsername("testuser"),
 		postgres.WithPassword("testpass"),
@@ -157,19 +113,19 @@ func SetupFullContainer(t *testing.T) *Container {
 				WithOccurrence(2).
 				WithStartupTimeout(5*time.Minute)),
 	)
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		if err := postgresContainer.Terminate(ctx); err != nil {
-			t.Logf("failed to terminate postgres container: %s", err)
-		}
-	})
+	if err != nil {
+		panic("failed to start postgres container: " + err.Error())
+	}
 
 	host, err := postgresContainer.Host(ctx)
-	require.NoError(t, err)
+	if err != nil {
+		panic("failed to get postgres host: " + err.Error())
+	}
 
 	port, err := postgresContainer.MappedPort(ctx, "5432")
-	require.NoError(t, err)
+	if err != nil {
+		panic("failed to get postgres port: " + err.Error())
+	}
 
 	cfg := &config.Config{
 		Database: config.Database{
@@ -184,26 +140,28 @@ func SetupFullContainer(t *testing.T) *Container {
 	}
 
 	dbConn, err := db.NewPostgres(cfg)
-	require.NoError(t, err)
+	if err != nil {
+		panic("failed to connect to test database: " + err.Error())
+	}
 
 	// Setup Redis
-	redisContainer, err := redisContainer.RunContainer(ctx,
-		testcontainers.WithImage("redis:7-alpine"),
+	redisContainer, err := redisContainer.Run(ctx,
+		"redis:7-alpine",
 		testcontainers.WithWaitStrategy(wait.ForLog("Ready to accept connections")),
 	)
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		if err := redisContainer.Terminate(ctx); err != nil {
-			t.Logf("failed to terminate redis container: %s", err)
-		}
-	})
+	if err != nil {
+		panic("failed to start redis container: " + err.Error())
+	}
 
 	redisHost, err := redisContainer.Host(ctx)
-	require.NoError(t, err)
+	if err != nil {
+		panic("failed to get redis host: " + err.Error())
+	}
 
 	redisPort, err := redisContainer.MappedPort(ctx, "6379")
-	require.NoError(t, err)
+	if err != nil {
+		panic("failed to get redis port: " + err.Error())
+	}
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: redisHost + ":" + redisPort.Port(),
@@ -211,12 +169,33 @@ func SetupFullContainer(t *testing.T) *Container {
 
 	// Test Redis connection
 	err = redisClient.Ping().Err()
-	require.NoError(t, err)
+	if err != nil {
+		panic("failed to connect to test redis: " + err.Error())
+	}
 
-	return &Container{
+	container := &Container{
 		PostgresContainer: postgresContainer,
 		RedisContainer:    redisContainer,
 		DB:                dbConn,
 		Redis:             redisClient,
 	}
+
+	// Return cleanup function for TestMain
+	cleanup := func() int {
+		if err := container.Terminate(); err != nil {
+			println("failed to terminate containers:", err.Error())
+			return 1
+		}
+		return 0
+	}
+
+	return container, cleanup
+}
+
+// RunStandardMigrations runs migrations for common models used across tests
+func (c *Container) RunStandardMigrations(t *testing.T) {
+	t.Helper()
+
+	err := c.DB.AutoMigrate(&user.User{}, &user.Preference{})
+	require.NoError(t, err)
 }

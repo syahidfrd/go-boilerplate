@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,13 +17,26 @@ import (
 	"github.com/syahidfrd/go-boilerplate/internal/user"
 )
 
+var sharedContainer *test.Container
+
+func TestMain(m *testing.M) {
+	var cleanup func() int
+	sharedContainer, cleanup = test.SetupTestMain()
+
+	// Run standard migrations
+	sharedContainer.RunStandardMigrations(&testing.T{})
+
+	code := m.Run()
+	os.Exit(cleanup() + code)
+}
+
 func setupTestServices(t *testing.T) (*Service, *handler, *JWTMiddleware, *test.Container) {
 	t.Helper()
 
-	tc := test.SetupPostgresContainer(t)
-	tc.MigrateAll(t)
+	// Clean the database before each test
+	sharedContainer.CleanupAll(t)
 
-	userStore := user.NewStore(tc.DB)
+	userStore := user.NewStore(sharedContainer.DB)
 	userService := user.NewService(userStore)
 	jwtService := jwt.NewService("test-secret-key-for-integration-tests")
 
@@ -30,7 +44,7 @@ func setupTestServices(t *testing.T) (*Service, *handler, *JWTMiddleware, *test.
 	authHandler := NewHandler(authService)
 	jwtMiddleware := NewJWTMiddleware(jwtService)
 
-	return authService, authHandler, jwtMiddleware, tc
+	return authService, authHandler, jwtMiddleware, sharedContainer
 }
 
 func TestSignUpIntegration(t *testing.T) {
@@ -430,7 +444,7 @@ func TestConcurrentAuthOperationsIntegration(t *testing.T) {
 	const numGoroutines = 10
 	results := make(chan error, numGoroutines)
 
-	for i := 0; i < numGoroutines; i++ {
+	for i := range numGoroutines {
 		go func(id int) {
 			resp := test.MakeJSONRequest(t, handler.SignUp, test.HTTPRequest{
 				Method: http.MethodPost,
@@ -451,7 +465,7 @@ func TestConcurrentAuthOperationsIntegration(t *testing.T) {
 	}
 
 	// Collect results
-	for i := 0; i < numGoroutines; i++ {
+	for range numGoroutines {
 		err := <-results
 		require.NoError(t, err)
 	}
