@@ -16,7 +16,7 @@
 - 🏥 **Health Checks** - Database and cache connectivity monitoring
 - 📝 **Request Logging** - Comprehensive HTTP request logging
 - ⚡ **Caching** - Redis integration for performance optimization
-- 🧪 **Testing** - Unit test coverage with mocks
+- 🧪 **Testing** - Unit and integration test coverage
 - 🛡️ **Middleware** - CORS, recovery, real IP extraction, and request ID tracking
 - 📊 **Structured Logging** - Using zerolog for structured, contextual logging
 - 🔧 **Configuration** - Environment-based configuration management
@@ -30,6 +30,7 @@
 - [JWT](https://github.com/golang-jwt/jwt) - Authentication tokens
 - [Zerolog](https://github.com/rs/zerolog) - Structured logging
 - [Testify](https://github.com/stretchr/testify) - Testing framework
+- [Testcontainers](https://testcontainers.com/) - Integration testing with real containers
 - [go-playground/validator](https://github.com/go-playground/validator) - Request validation
 - [go-redis](https://github.com/go-redis/redis) - Redis client
 - [godotenv](https://github.com/joho/godotenv) - Environment variables loader
@@ -39,8 +40,9 @@
 ### Prerequisites
 
 - Go 1.22+
-- PostgreSQL
-- Redis
+- Docker (for databases and integration tests)
+- PostgreSQL (optional if using Docker)
+- Redis (optional if using Docker)
 
 ### Setup
 
@@ -77,7 +79,14 @@
 5. **Run tests**
 
    ```bash
-   make test
+   # Unit tests
+   make test/unit
+
+   # Integration tests
+   make test/integration
+
+   # All tests
+   make test/all
    ```
 
 6. **Run the application**
@@ -110,12 +119,50 @@
 
 - `GET /health` - Service health status
 
-### Makefile Commands
+## Testing
+
+This project includes comprehensive testing at multiple levels:
+
+### Unit Tests
+
+Run unit tests:
+
+```bash
+make test/unit
+```
+
+### Integration Tests
+
+Run integration tests with real PostgreSQL and Redis containers:
+
+```bash
+make test/integration
+```
+
+**Requirements:**
+
+- Docker must be running
+- Integration tests use [Testcontainers](https://testcontainers.com/) to spin up real databases
+
+### All Tests
+
+```bash
+make test/all
+```
+
+## Makefile Commands
 
 You can find all available commands in the `Makefile`:
+
+### Development
 
 - `make tidy` - Format code and tidy dependencies
 - `make build` - Build the application binary
 - `make run bin=server` - Build and run the application
 - `make run/live bin=server` - Run with live reload using Air
-- `make test` - Run tests with coverage
+
+### Testing
+
+- `make test/unit` - Run unit tests only
+- `make test/integration` - Run integration tests (requires Docker)
+- `make test/all` - Run all tests (unit + integration)

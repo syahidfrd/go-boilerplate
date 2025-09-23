@@ -19,7 +19,13 @@ run/live:
 		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
 		--misc.clean_on_exit "true"
 
-.PHONY: test
+.PHONY: test/unit
+test/unit:
+	go test ./... -race -coverprofile=./coverage.out
 
-test:
-	go test $$(go list ./... | grep -v 'test\|mocks') -race -coverprofile=./coverage.out
+.PHONY: test/integration
+test/integration:
+	go test -tags=integration ./... -v -timeout 5m
+
+.PHONY: test/all
+test/all: test test/integration

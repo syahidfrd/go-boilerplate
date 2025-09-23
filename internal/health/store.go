@@ -2,6 +2,7 @@ package health
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-redis/redis"
 	"gorm.io/gorm"
@@ -23,6 +24,9 @@ func NewStore(dbConn *gorm.DB, redisClient *redis.Client) *store {
 
 // PingDatabase checks database connectivity
 func (s *store) PingDatabase(ctx context.Context) error {
+	if s.dbConn == nil {
+		return fmt.Errorf("database connection is nil")
+	}
 	sqlDB, err := s.dbConn.DB()
 	if err != nil {
 		return err
@@ -32,5 +36,8 @@ func (s *store) PingDatabase(ctx context.Context) error {
 
 // PingCache checks Redis cache connectivity
 func (s *store) PingCache(ctx context.Context) error {
+	if s.redisClient == nil {
+		return fmt.Errorf("redis client is nil")
+	}
 	return s.redisClient.Ping().Err()
 }
