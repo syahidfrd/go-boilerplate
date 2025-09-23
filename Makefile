@@ -1,37 +1,31 @@
-ifneq (,$(wildcard ./.env))
-    include .env
-    export
-endif
+.PHONY: tidy
+tidy:
+	go fmt ./...
+	go mod tidy -v
 
-migration-create:
-	migrate create -ext sql -dir migration -seq $(name)
+.PHONY: build
+build:
+	go build -o /tmp/bin/app main.go
 
-migration-up:
-	migrate -path migration -database "${DATABASE_URL}" up
+.PHONY: run
+run: build
+	/tmp/bin/app $(bin)
 
-migration-down:
-	migrate -path migration -database "${DATABASE_URL}" down
+.PHONY: run/live
+run/live:
+	go run github.com/cosmtrek/air@v1.43.0 \
+		--build.cmd "make build" --build.bin "/tmp/bin/app $(bin)" --build.delay "100" \
+		--build.exclude_dir "" \
+		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
+		--misc.clean_on_exit "true"
 
-run-server:
-	go run ./cmd/api/main.go
+.PHONY: test/unit
+test/unit:
+	go test ./... -race -coverprofile=./coverage.out
 
-build-api:
-	go build ./cmd/api/main.go
+.PHONY: test/integration
+test/integration:
+	go test -tags=integration ./... -v -timeout 5m
 
-test:
-	go test -v ./...
-
-mock:
-	mockery --all
-
-swagger:
-	swag init -g cmd/api/main.go
-
-.PHONY:
-	migration-create
-	migration-up
-	migration-down
-	run-server
-	build-api
-	test
-	mock
+.PHONY: test/all
+test/all: test test/integration
