@@ -4,19 +4,13 @@ import (
 	"context"
 )
 
-// Store defines the interface for health check operations
-type Store interface {
-	PingDatabase(ctx context.Context) error
-	PingCache(ctx context.Context) error
-}
-
 // Service provides health check business logic operations
 type Service struct {
-	store Store
+	store *store
 }
 
 // NewService creates a new health service with the provided store
-func NewService(store Store) *Service {
+func NewService(store *store) *Service {
 	return &Service{
 		store: store,
 	}

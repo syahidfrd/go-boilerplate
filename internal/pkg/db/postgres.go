@@ -1,9 +1,9 @@
-package database
+package db
 
 import (
 	"fmt"
 
-	"github.com/syahidfrd/go-boilerplate/internal/config"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

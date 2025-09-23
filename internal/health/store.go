@@ -9,21 +9,21 @@ import (
 
 // store implements health check data operations using GORM and Redis
 type store struct {
-	db          *gorm.DB
+	dbConn      *gorm.DB
 	redisClient *redis.Client
 }
 
 // NewStore creates a new health store with the provided database and Redis connections
-func NewStore(db *gorm.DB, redisClient *redis.Client) *store {
+func NewStore(dbConn *gorm.DB, redisClient *redis.Client) *store {
 	return &store{
-		db:          db,
+		dbConn:      dbConn,
 		redisClient: redisClient,
 	}
 }
 
 // PingDatabase checks database connectivity
 func (s *store) PingDatabase(ctx context.Context) error {
-	sqlDB, err := s.db.DB()
+	sqlDB, err := s.dbConn.DB()
 	if err != nil {
 		return err
 	}

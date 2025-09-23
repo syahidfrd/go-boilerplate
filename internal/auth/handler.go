@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog/log"
-	"github.com/syahidfrd/go-boilerplate/internal/render"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/render"
 )
 
 // handler handles HTTP requests for authentication endpoints

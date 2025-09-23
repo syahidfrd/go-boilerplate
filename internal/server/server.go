@@ -12,11 +12,11 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/rs/zerolog/log"
 	"github.com/syahidfrd/go-boilerplate/internal/auth"
-	"github.com/syahidfrd/go-boilerplate/internal/cache"
-	"github.com/syahidfrd/go-boilerplate/internal/config"
-	"github.com/syahidfrd/go-boilerplate/internal/database"
 	"github.com/syahidfrd/go-boilerplate/internal/health"
-	"github.com/syahidfrd/go-boilerplate/internal/jwt"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/cache"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/config"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/db"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/jwt"
 	"github.com/syahidfrd/go-boilerplate/internal/todo"
 	"github.com/syahidfrd/go-boilerplate/internal/user"
 )
@@ -32,13 +32,13 @@ func NewServer() *Server {
 	cfg := config.LoadEnv()
 
 	// Initialize database
-	db, err := database.NewPostgres(cfg)
+	dbConn, err := db.NewPostgres(cfg)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to database")
 	}
 
 	// Auto migrate models
-	if err := database.AutoMigrate(db, &user.User{}, &todo.Todo{}); err != nil {
+	if err := db.AutoMigrate(dbConn, &user.User{}, &user.Preference{}, &todo.Todo{}); err != nil {
 		log.Fatal().Err(err).Msg("failed to auto migrate database")
 	}
 
@@ -49,15 +49,15 @@ func NewServer() *Server {
 	redisCache := cache.NewRedis(redisClient)
 
 	// Initialize services
-	userStore := user.NewStore(db)
+	userStore := user.NewStore(dbConn)
 	userService := user.NewService(userStore)
 	jwtService := jwt.NewService(cfg.AppSecret)
 	authService := auth.NewService(userService, jwtService)
 
-	todoStore := todo.NewStore(db)
+	todoStore := todo.NewStore(dbConn)
 	todoService := todo.NewService(todoStore, redisCache)
 
-	healthStore := health.NewStore(db, redisClient)
+	healthStore := health.NewStore(dbConn, redisClient)
 	healthService := health.NewService(healthStore)
 
 	// Initialize handlers

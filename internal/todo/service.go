@@ -5,27 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/cache"
 )
-
-// Store defines the interface for todo data persistence operations
-type Store interface {
-	Save(ctx context.Context, todo *Todo) error
-	GetByID(ctx context.Context, id int64) (*Todo, error)
-	GetByUserID(ctx context.Context, userID int64) ([]Todo, error)
-	Delete(ctx context.Context, id int64) error
-}
-
-// Cache defines the interface for todo caching operations
-type Cache interface {
-	Get(ctx context.Context, key string) (string, error)
-	Set(ctx context.Context, key string, value string, ttl time.Duration) error
-	Delete(ctx context.Context, key string) error
-}
 
 // Service provides todo business logic operations with caching support
 type Service struct {
-	store Store
-	cache Cache
+	store *store
+	cache *cache.RedisCache
 }
 
 // CreateTodoRequest represents the request payload for creating a todo
@@ -41,7 +28,7 @@ type UpdateTodoRequest struct {
 }
 
 // NewService creates a new todo service with the provided dependencies
-func NewService(store Store, cache Cache) *Service {
+func NewService(store *store, cache *cache.RedisCache) *Service {
 	return &Service{
 		store: store,
 		cache: cache,

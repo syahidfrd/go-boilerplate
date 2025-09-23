@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/rs/zerolog/log"
-	"github.com/syahidfrd/go-boilerplate/internal/render"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/render"
 )
 
 // Handler handles HTTP requests for health check operations

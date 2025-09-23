@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/syahidfrd/go-boilerplate/internal/jwt"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/jwt"
 	"github.com/syahidfrd/go-boilerplate/internal/user"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,20 +21,8 @@ var (
 
 // Service provides authentication business logic operations
 type Service struct {
-	userService UserService
-	jwtService  JWTService
-}
-
-// UserService defines the interface for user data operations
-type UserService interface {
-	Create(ctx context.Context, email, hashedPassword string) (*user.User, error)
-	GetByEmail(ctx context.Context, email string) (*user.User, error)
-}
-
-// JWTService defines the interface for JWT token operations
-type JWTService interface {
-	GenerateToken(userID int64) (string, error)
-	ValidateToken(tokenString string) (*jwt.Claims, error)
+	userService *user.Service
+	jwtService  *jwt.Service
 }
 
 // SignUpRequest represents the request payload for user registration
@@ -60,7 +48,7 @@ type SignInResponse struct {
 }
 
 // NewService creates a new auth service with the provided dependencies
-func NewService(userService UserService, jwtService JWTService) *Service {
+func NewService(userService *user.Service, jwtService *jwt.Service) *Service {
 	return &Service{
 		userService: userService,
 		jwtService:  jwtService,

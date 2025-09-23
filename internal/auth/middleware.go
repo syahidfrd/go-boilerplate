@@ -6,7 +6,8 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
-	"github.com/syahidfrd/go-boilerplate/internal/render"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/jwt"
+	"github.com/syahidfrd/go-boilerplate/internal/pkg/render"
 )
 
 type contextKey string
@@ -16,11 +17,11 @@ const UserIDKey contextKey = "user_id"
 
 // JWTMiddleware provides JWT authentication middleware functionality
 type JWTMiddleware struct {
-	jwtService JWTService
+	jwtService *jwt.Service
 }
 
 // NewJWTMiddleware creates a new JWT middleware with the provided JWT service
-func NewJWTMiddleware(jwtService JWTService) *JWTMiddleware {
+func NewJWTMiddleware(jwtService *jwt.Service) *JWTMiddleware {
 	return &JWTMiddleware{
 		jwtService: jwtService,
 	}
