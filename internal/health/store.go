@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -39,5 +39,5 @@ func (s *store) PingCache(ctx context.Context) error {
 	if s.redisClient == nil {
 		return fmt.Errorf("redis client is nil")
 	}
-	return s.redisClient.Ping().Err()
+	return s.redisClient.Ping(ctx).Err()
 }
