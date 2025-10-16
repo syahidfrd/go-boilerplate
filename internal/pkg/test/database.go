@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	"github.com/syahidfrd/go-boilerplate/internal/pkg/config"
 	"github.com/syahidfrd/go-boilerplate/internal/pkg/db"
@@ -85,7 +85,7 @@ func (c *Container) CleanupCache(t *testing.T) {
 		return
 	}
 
-	err := c.Redis.FlushAll().Err()
+	err := c.Redis.FlushAll(context.Background()).Err()
 	if err != nil {
 		t.Logf("failed to flush Redis cache: %v", err)
 	}
@@ -168,7 +168,7 @@ func SetupTestMain() (*Container, func() int) {
 	})
 
 	// Test Redis connection
-	err = redisClient.Ping().Err()
+	err = redisClient.Ping(ctx).Err()
 	if err != nil {
 		panic("failed to connect to test redis: " + err.Error())
 	}

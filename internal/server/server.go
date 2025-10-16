@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
 	"github.com/syahidfrd/go-boilerplate/internal/auth"
 	"github.com/syahidfrd/go-boilerplate/internal/health"
